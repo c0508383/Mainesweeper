@@ -1,7 +1,13 @@
 package MAINesweeper;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.effect.MotionBlur;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
@@ -11,6 +17,7 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.util.HashMap;
@@ -19,7 +26,17 @@ import java.util.Random;
 import static java.lang.System.out;
 
 public class mainesweeperView extends Application {
-    Text winText = new Text(50,50,"You win woohoo");
+    Text greetMAIN = new Text(230,150,"MAIN");
+    Text greetSweeper = new Text(430,150,"-esweeper");
+    Group startGreetingMineSweeper = new Group(greetSweeper,greetMAIN);
+
+    Group startGreeting = new Group(startGreetingMineSweeper);
+
+    Text time = new Text(100,125,"TIME: ");
+    Text score = new Text(100,150,"SCORE: ");
+
+    Text loseText = new Text(100,100,"YA LOSE M7");
+    Group lose = new Group(time, score, loseText);
 
     MediaPlayer soundPlayer;
     Media sound;
@@ -27,10 +44,14 @@ public class mainesweeperView extends Application {
         launch(args);
     }
     public void start(Stage stage) throws Exception {
-        winText.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 20));
-        winText.setVisible(false);
 
-        Pane main = new Pane(winText);
+        greetMAIN.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 60));
+        greetSweeper.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.ITALIC, 30));
+
+        loseText.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 40));
+        lose.setVisible(false);
+
+        Pane main = new Pane(startGreeting,lose);
         //main.setScaleX();
         //main.setScaleY();
         StackPane rootPane = new StackPane(main);
@@ -39,9 +60,33 @@ public class mainesweeperView extends Application {
         stage.setScene(scene);
         stage.show();
     }
-    public void viewWin(){
-        winText.setVisible(true);
+    public void viewGreetScreen(){
         playSound("win");
+    }
+    public void viewGreetTranstition(){
+        MotionBlur transitionMb = new MotionBlur();
+        transitionMb.setAngle(90);
+
+        EventHandler<ActionEvent> greetTransitionEvent = e ->
+        {
+            transitionMb.setRadius(Math.random()*100);
+            startGreeting.setEffect(transitionMb);
+            startGreeting.setTranslateY(startGreeting.getTranslateY()+5);
+        };
+        Timeline greetTransitionAnim = new Timeline(new KeyFrame(Duration.millis(1), greetTransitionEvent));
+        greetTransitionAnim.setCycleCount(1000);
+        greetTransitionAnim.play();
+        greetTransitionAnim.setOnFinished(event -> {
+            viewStartGame();
+        });
+    }
+    public void viewGameOver(String winOrLose){
+        if(winOrLose=="LOSE")
+            lose.setVisible(true);
+    }
+    public void viewStartGame(){
+        lose.setVisible(false);
+        startGreeting.setVisible(false);
     }
     public void playSound(String soundName) {
         try {
