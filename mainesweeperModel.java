@@ -9,11 +9,13 @@ public class mainesweeperModel extends Application{
     boolean gameActive;
     boolean gameOver;
     mainesweeperView view = new mainesweeperView();
+
     public static void main(String[]args){
         launch(args);
     }
     public void start(Stage stage) throws Exception {
         view.start(stage);
+
     }
     public void modelGreetScreen(){
         view.viewGreetScreen();

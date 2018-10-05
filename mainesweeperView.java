@@ -19,6 +19,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import javafx.scene.image.*;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Random;
@@ -40,6 +41,9 @@ public class mainesweeperView extends Application {
 
     MediaPlayer soundPlayer;
     Media sound;
+
+    Image[][] mineGrid;
+
     public static void main(String[]args){
         launch(args);
     }
@@ -59,6 +63,8 @@ public class mainesweeperView extends Application {
         stage.setTitle("-MAN-sweeper");
         stage.setScene(scene);
         stage.show();
+
+        mineGrid = new Image[16][16];
     }
     public void viewGreetScreen(){
         playSound("win");
