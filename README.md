@@ -12,4 +12,4 @@ As defined by the Oxford English Dictionary (citation needed), Mainesweeper is..
           
           6. American
           7. ~Beautiful~
-          8. -INSIGHTFUL-
+          8. -INSIGHTFUL--
