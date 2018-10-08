@@ -19,21 +19,14 @@ public class mainesweeperCtrl extends Application {
 
         stage.addEventHandler(KeyEvent.KEY_RELEASED, (key) -> {
             model.modelGreetScreen();
-            /*
-            if (model.gameActive == true) {
-                model.modelGameOver("LOSE");
-                out.println("game ended");
-            }
-            else
-            {
-                model.modelStartGame();
-                out.println("game started");
-            }
-            */
+
             if(model.gameActive != true){
                 model.modelStartGame();
                 out.println("game started");
             }
         });
+    }
+    public mainesweeperModel getModel(){
+        return model;
     }
 }

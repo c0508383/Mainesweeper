@@ -15,7 +15,10 @@ public class mainesweeperModel extends Application{
     }
     public void start(Stage stage) throws Exception {
         view.start(stage);
-
+        view.setGridSize(16);//Can be changed according to difficulty
+        view.mineGridGroup.setOnMouseClicked(event ->{
+            modelGameOver("LOSE");
+        });
     }
     public void modelGreetScreen(){
         view.viewGreetScreen();
