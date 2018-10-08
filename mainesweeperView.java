@@ -38,7 +38,7 @@ public class mainesweeperView extends Application {
 
     Text greetMAIN = new Text(100, 250, "MAIN");
     Text greetSweeper = new Text(430, 250, "-esweeper");
-    Text pressAKey = new Text(300,650,"(press any key)");
+    Text pressAKey = new Text(300, 650, "(press any key)");
     FadeTransition fadeInPressAKey;
     FadeTransition fadeOutPressAKey;
     int greenDarkenCounter;
@@ -78,7 +78,7 @@ public class mainesweeperView extends Application {
             greetMAIN.setStroke(Color.rgb((int) (Math.random() * 100) + 155, 0, 0));
             greetMAIN.setTranslateX((Math.random() * 100) - 50);
             greetMAIN.setTranslateY((Math.random() * 100) - 50);
-            greetMAIN.setRotate(Math.random()*90 -45);
+            greetMAIN.setRotate(Math.random() * 90 - 45);
             mb.setRadius(Math.random() * 100 - 10);
             mb.setAngle(Math.random() * 60 - 30);
         };
@@ -88,20 +88,22 @@ public class mainesweeperView extends Application {
 
         greetSweeper.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.ITALIC, 60));
         pressAKey.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 30));
-        fadeInPressAKey = new FadeTransition(Duration.millis(500),pressAKey);
+        fadeInPressAKey = new FadeTransition(Duration.millis(500), pressAKey);
         fadeInPressAKey.setFromValue(0.5);
         fadeInPressAKey.setToValue(1);
         fadeInPressAKey.play();
-        fadeOutPressAKey = new FadeTransition(Duration.millis(500),pressAKey);
+        fadeOutPressAKey = new FadeTransition(Duration.millis(500), pressAKey);
         fadeOutPressAKey.setFromValue(1);
         fadeOutPressAKey.setToValue(0.5);
         fadeOutPressAKey.play();
         fadeInPressAKey.setOnFinished(event -> {
             fadeOutPressAKey.play();
-        });;
+        });
+        ;
         fadeOutPressAKey.setOnFinished(event -> {
             fadeInPressAKey.play();
-        });;
+        });
+        ;
 
         loseText.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 40));
         lose.setVisible(false);
@@ -119,6 +121,7 @@ public class mainesweeperView extends Application {
     public void viewGreetScreen() {
         //playSound("win");
     }
+
     public void viewGreetTranstition() {
         pressAKey.setOpacity(1.0);
         fadeOutPressAKey.stop();
@@ -129,7 +132,7 @@ public class mainesweeperView extends Application {
         greenDarkenCounter = 0;
         EventHandler<ActionEvent> keyPressedEvent = e ->
         {
-            pressAKey.setFill(Color.rgb(0,255-greenDarkenCounter/10,0));
+            pressAKey.setFill(Color.rgb(0, 255 - greenDarkenCounter / 10, 0));
             greenDarkenCounter++;
         };
         keyPressedAnim.getKeyFrames().add(new KeyFrame(Duration.millis(1), keyPressedEvent));
@@ -159,6 +162,7 @@ public class mainesweeperView extends Application {
             lose.setVisible(true);
         mineGridGroup.setVisible(false);
     }
+
     public void viewStartGame() {
         int yOffset = 0;
         int xOffset = 0;
@@ -191,21 +195,24 @@ public class mainesweeperView extends Application {
         EventHandler<ActionEvent> gridGenerateEvent = e ->
         {
             if (diagonal > 16) {
-                for (int a = 0; a < 32-diagonal; a++) {
+                for (int a = 0; a < 32 - diagonal; a++) {
                     mineGridGroup.getChildren().get(((diagonal - 15) * 16) + (a * 15) - 1).setVisible(true);
-                    FadeTransition fadeIn = new FadeTransition(Duration.millis(500),mineGridGroup.getChildren().get(((diagonal - 15) * 16) + (a * 15) - 1));
+                    FadeTransition fadeIn = new FadeTransition(Duration.millis(500), mineGridGroup.getChildren().get(((diagonal - 15) * 16) + (a * 15) - 1));
                     fadeIn.setFromValue(0);
                     fadeIn.setToValue(1);
                     fadeIn.play();
+                    if (a % 6 == 0)
+                        playSound("generate");
                 }
-            }
-            else
+            } else
                 for (int a = 0; a < diagonal; a++) {
                     mineGridGroup.getChildren().get((diagonal) + (a * 15) - 1).setVisible(true);
-                    FadeTransition fadeIn = new FadeTransition(Duration.millis(500),mineGridGroup.getChildren().get((diagonal) + (a * 15) - 1));
+                    FadeTransition fadeIn = new FadeTransition(Duration.millis(500), mineGridGroup.getChildren().get((diagonal) + (a * 15) - 1));
                     fadeIn.setFromValue(0);
                     fadeIn.setToValue(1);
                     fadeIn.play();
+                    if (a % 6 == 0)
+                        playSound("generate");
                 }
             diagonal++;
         };
@@ -216,9 +223,11 @@ public class mainesweeperView extends Application {
             mineGridGroup.setVisible(true);
         });
     }
-    public void setGridSize(int size){
+
+    public void setGridSize(int size) {
         gridSize = size;
     }
+
     public void playSound(String soundName) {
         try {
         } catch (Exception noStreakSound) {
@@ -232,10 +241,13 @@ public class mainesweeperView extends Application {
         if (soundName == "win") {
             path += "win\\win0.wav";
         }
+        if (soundName == "generate") {
+            path += "generate\\generate1.wav";
+        }
 
-        sound = new Media(new File(path).toURI().toString());
+        Media sound = new Media(new File(path).toURI().toString());
         if (soundName != "STREAK") {
-            soundPlayer = new MediaPlayer(sound);
+            MediaPlayer soundPlayer = new MediaPlayer(sound);
             soundPlayer.play();
         }
     }
