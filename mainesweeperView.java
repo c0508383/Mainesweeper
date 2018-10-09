@@ -234,15 +234,15 @@ public class mainesweeperView extends Application {
             out.println("Error stopping sound: no sound exists yet");
         }
 
-        String path = "C:\\Users\\khscs003\\Desktop\\CS2 Programs\\src\\MAINesweeper\\snd\\";
+        String path = "src/MAINesweeper/snd/";
         Random rnd = new Random();
         int randomSndDir = 0;
 
         if (soundName == "win") {
-            path += "win\\win0.wav";
+            path += "win/win0.wav";
         }
         if (soundName == "generate") {
-            path += "generate\\generate1.wav";
+            path += "generate/generate1.wav";
         }
 
         Media sound = new Media(new File(path).toURI().toString());
