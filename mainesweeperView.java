@@ -29,6 +29,7 @@ import javafx.util.Duration;
 import javafx.scene.image.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -169,16 +170,22 @@ public class mainesweeperView extends Application {
         double mineheight = 0;
         for (int a = 0; a < 16; a++) {
             for (int b = 0; b < 16; b++) {
-                Rectangle mine = new Rectangle(40, 40);
-                mine.setFill(Color.rgb(110, 110, 110));
-                mine.setX(80 + xOffset);
-                mine.setId(a + "," + b);
-                mine.setStroke(Color.rgb(0, 0, 0));
-                mine.setStrokeWidth(mine.getWidth() / 5);
-                xOffset += mine.getWidth();
-                mine.setY(100 + yOffset);
-                mineGridGroup.getChildren().add(mine);
-                mineheight = mine.getHeight();
+                Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\minetile.png").toURI().toString());
+                ImageView mineImageView = new ImageView(mineImage);
+                mineImageView.setX(-135 + xOffset);
+                mineImageView.setY(yOffset-120);
+                mineImageView.setScaleX(0.075);
+                mineImageView.setScaleY(0.075);
+                //Rectangle mine = new Rectangle(40, 40);
+                //mine.setFill(Color.rgb(110, 110, 110));
+                //mine.setX(80 + xOffset);
+                //mine.setId(a + "," + b);
+                //mine.setStroke(Color.rgb(0, 0, 0));
+                //mine.setStrokeWidth(mine.getWidth() / 5);
+                xOffset += 38;//mineImageView.getWidth();
+                //mine.setY(100 + yOffset);
+                mineGridGroup.getChildren().add(mineImageView);
+                mineheight = 38;//mineImageView.getHeight();
             }
             yOffset += mineheight;
             xOffset = 0;
@@ -196,21 +203,21 @@ public class mainesweeperView extends Application {
         {
             if (diagonal > 16) {
                 for (int a = 0; a < 32 - diagonal; a++) {
-                    mineGridGroup.getChildren().get(((diagonal - 15) * 16) + (a * 15) - 1).setVisible(true);
                     FadeTransition fadeIn = new FadeTransition(Duration.millis(500), mineGridGroup.getChildren().get(((diagonal - 15) * 16) + (a * 15) - 1));
                     fadeIn.setFromValue(0);
                     fadeIn.setToValue(1);
                     fadeIn.play();
+                    mineGridGroup.getChildren().get(((diagonal - 15) * 16) + (a * 15) - 1).setVisible(true);
                     if (a % 6 == 0)
                         playSound("generate");
                 }
             } else
                 for (int a = 0; a < diagonal; a++) {
-                    mineGridGroup.getChildren().get((diagonal) + (a * 15) - 1).setVisible(true);
                     FadeTransition fadeIn = new FadeTransition(Duration.millis(500), mineGridGroup.getChildren().get((diagonal) + (a * 15) - 1));
                     fadeIn.setFromValue(0);
                     fadeIn.setToValue(1);
                     fadeIn.play();
+                    mineGridGroup.getChildren().get((diagonal) + (a * 15) - 1).setVisible(true);
                     if (a % 6 == 0)
                         playSound("generate");
                 }
