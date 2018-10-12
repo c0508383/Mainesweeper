@@ -8,20 +8,14 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.TextFormatter;
-import javafx.scene.effect.Effect;
 import javafx.scene.effect.MotionBlur;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
@@ -32,14 +26,12 @@ import javafx.util.Duration;
 import javafx.scene.image.*;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.util.HashMap;
 import java.util.Random;
 
 import static java.lang.System.out;
 
 public class mainesweeperView extends Application {
-    Text disclaimer = new Text(0,670, "disclaimer: turn your volume\ndown to prevent permanent\near damage (seriously; don't sue me)");
+    Text disclaimer = new Text(20, 760, "disclaimer: turn your volume\ndown to prevent permanent\near damage (seriously; don't sue me)");
     Text greetMAIN = new Text(100, 250, "MAIN");
     Text greetSweeper = new Text(430, 250, "-esweeper");
     Text pressAKey = new Text(300, 650, "(press any key)");
@@ -53,7 +45,7 @@ public class mainesweeperView extends Application {
     Text time = new Text(100, 125, "TIME: ");
     Text score = new Text(100, 150, "SCORE: ");
 
-    Text loseText = new Text(100, 100, "YA LOSE M7");
+    Text loseText = new Text(85, 300, "==G A M E==O V E R==");
     Group lose = new Group(time, score, loseText);
 
     MediaPlayer soundPlayer;
@@ -78,7 +70,7 @@ public class mainesweeperView extends Application {
         mineGridGroup.setVisible(false);
 
         disclaimer.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.ITALIC, 10));
-        disclaimer.setFill(Color.rgb(100,100,100));
+        disclaimer.setFill(Color.rgb(100, 100, 100));
 
         greetMAIN.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 100));
 
@@ -118,7 +110,7 @@ public class mainesweeperView extends Application {
         });
         ;
 
-        loseText.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 40));
+        loseText.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 50));
         lose.setVisible(false);
 
         Pane main = new Pane(startGreeting, lose, mineGridGroup);
@@ -139,12 +131,12 @@ public class mainesweeperView extends Application {
             }
         });
 
-        greetMAIN.setX(main.getScaleX()*100);
-        greetSweeper.setX(main.getScaleX()*430);
-        pressAKey.setX(main.getScaleX()*300);
-        greetMAIN.setY(main.getScaleY()*250);
-        greetSweeper.setY(main.getScaleY()*250);
-        pressAKey.setY(main.getScaleY()*650);
+        greetMAIN.setX(main.getScaleX() * 100);
+        greetSweeper.setX(main.getScaleX() * 430);
+        pressAKey.setX(main.getScaleX() * 300);
+        greetMAIN.setY(main.getScaleY() * 250);
+        greetSweeper.setY(main.getScaleY() * 250);
+        pressAKey.setY(main.getScaleY() * 650);
 
         Scene scene = new Scene(rootPane, 800/* * scale*/, 800/* * scale*/);    //450,600
         stage.setTitle("-MAN-sweeper");
@@ -204,19 +196,23 @@ public class mainesweeperView extends Application {
     public void viewStartGame() {
         int yOffset = 0;
         int xOffset = 0;
+        int idTracker = 0;
         double mineheight = 0;
         for (int a = 0; a < gridSize; a++) {
             for (int b = 0; b < gridSize; b++) {
                 Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\minetile.png").toURI().toString());
                 ImageView mineImageView = new ImageView(mineImage);
+                mineImageView.setId(String.valueOf(idTracker));
+
                 mineImageView.setScaleX(0.075);
                 mineImageView.setScaleY(0.075);
                 mineImageView.setX(xOffset);
                 mineImageView.setY(yOffset);
                 xOffset += mineImage.getWidth() * mineImageView.getScaleX();
+
                 mineGridGroup.getChildren().add(mineImageView);
                 mineheight = mineImage.getHeight() * mineImageView.getScaleY();
-                ;//mineImageView.getHeight();
+                idTracker++;
             }
             yOffset += mineheight;
             xOffset = 0;
