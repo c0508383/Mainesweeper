@@ -58,8 +58,11 @@ public class mainesweeperView extends Application {
 
     Group mineGridGroup;
     int diagonal;
-
     int gridSize;
+
+    public void setGridSize(int size) {
+        gridSize = size;
+    }
 
     public static void main(String[] args) {
         launch(args);
@@ -124,6 +127,8 @@ public class mainesweeperView extends Application {
     }
 
     public void viewGreetTranstition() {
+        stopSound();
+
         pressAKey.setOpacity(1.0);
         fadeOutPressAKey.stop();
         fadeInPressAKey.stop();
@@ -168,24 +173,17 @@ public class mainesweeperView extends Application {
         int yOffset = 0;
         int xOffset = 0;
         double mineheight = 0;
-        for (int a = 0; a < 16; a++) {
-            for (int b = 0; b < 16; b++) {
+        for (int a = 0; a < gridSize; a++) {
+            for (int b = 0; b < gridSize; b++) {
                 Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\minetile.png").toURI().toString());
                 ImageView mineImageView = new ImageView(mineImage);
-                mineImageView.setX(-135 + xOffset);
-                mineImageView.setY(yOffset-120);
                 mineImageView.setScaleX(0.075);
                 mineImageView.setScaleY(0.075);
-                //Rectangle mine = new Rectangle(40, 40);
-                //mine.setFill(Color.rgb(110, 110, 110));
-                //mine.setX(80 + xOffset);
-                //mine.setId(a + "," + b);
-                //mine.setStroke(Color.rgb(0, 0, 0));
-                //mine.setStrokeWidth(mine.getWidth() / 5);
-                xOffset += 38;//mineImageView.getWidth();
-                //mine.setY(100 + yOffset);
+                mineImageView.setX(xOffset);
+                mineImageView.setY(yOffset);
+                xOffset += mineImage.getWidth()*mineImageView.getScaleX();
                 mineGridGroup.getChildren().add(mineImageView);
-                mineheight = 38;//mineImageView.getHeight();
+                mineheight = mineImage.getHeight()*mineImageView.getScaleY();;//mineImageView.getHeight();
             }
             yOffset += mineheight;
             xOffset = 0;
@@ -199,40 +197,39 @@ public class mainesweeperView extends Application {
         }
         diagonal = 1;
 
+        mineGridGroup.setLayoutX(-130);
+        mineGridGroup.setLayoutY(-130);
+
         EventHandler<ActionEvent> gridGenerateEvent = e ->
         {
-            if (diagonal > 16) {
-                for (int a = 0; a < 32 - diagonal; a++) {
-                    FadeTransition fadeIn = new FadeTransition(Duration.millis(500), mineGridGroup.getChildren().get(((diagonal - 15) * 16) + (a * 15) - 1));
+            if (diagonal > gridSize) {
+                for (int a = 0; a < gridSize*2 - diagonal; a++) {
+                    FadeTransition fadeIn = new FadeTransition(Duration.millis(500), mineGridGroup.getChildren().get(((diagonal - (gridSize-1)) * gridSize) + (a * (gridSize-1)) - 1));
                     fadeIn.setFromValue(0);
                     fadeIn.setToValue(1);
                     fadeIn.play();
-                    mineGridGroup.getChildren().get(((diagonal - 15) * 16) + (a * 15) - 1).setVisible(true);
+                    mineGridGroup.getChildren().get(((diagonal - (gridSize-1)) * gridSize) + (a * (gridSize-1)) - 1).setVisible(true);
                     if (a % 6 == 0)
                         playSound("generate");
                 }
             } else
                 for (int a = 0; a < diagonal; a++) {
-                    FadeTransition fadeIn = new FadeTransition(Duration.millis(500), mineGridGroup.getChildren().get((diagonal) + (a * 15) - 1));
+                    FadeTransition fadeIn = new FadeTransition(Duration.millis(500), mineGridGroup.getChildren().get((diagonal) + (a * (gridSize-1)) - 1));
                     fadeIn.setFromValue(0);
                     fadeIn.setToValue(1);
                     fadeIn.play();
-                    mineGridGroup.getChildren().get((diagonal) + (a * 15) - 1).setVisible(true);
+                    mineGridGroup.getChildren().get((diagonal) + (a * (gridSize-1)) - 1).setVisible(true);
                     if (a % 6 == 0)
                         playSound("generate");
                 }
             diagonal++;
         };
         Timeline gridGenerateAnim = new Timeline(new KeyFrame(Duration.millis(40), gridGenerateEvent));
-        gridGenerateAnim.setCycleCount(32);
+        gridGenerateAnim.setCycleCount(gridSize*2);
         gridGenerateAnim.play();
         gridGenerateAnim.setOnFinished(event -> {
             mineGridGroup.setVisible(true);
         });
-    }
-
-    public void setGridSize(int size) {
-        gridSize = size;
     }
 
     public void playSound(String soundName) {
@@ -251,10 +248,15 @@ public class mainesweeperView extends Application {
         if (soundName == "generate") {
             path += "generate/generate1.wav";
         }
+        if (soundName == "titlemusic") {
+            path += "titlescreen/music/titlemusic0.wav";
+        }
 
-        Media sound = new Media(new File(path).toURI().toString());
-        if (soundName != "STREAK") {
-            MediaPlayer soundPlayer = new MediaPlayer(sound);
+        if(soundName == "titlemusic")
+            soundPlayer.setAutoPlay(true);
+        else {
+            sound = new Media(new File(path).toURI().toString());
+            soundPlayer = new MediaPlayer(sound);
             soundPlayer.play();
         }
     }
