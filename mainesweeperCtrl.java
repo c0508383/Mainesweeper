@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 
 public class mainesweeperCtrl extends Application {
     mainesweeperModel model = new mainesweeperModel();
+    boolean justOpened;
 
     public static void main(String[] args) {
         launch(args);
@@ -16,17 +17,18 @@ public class mainesweeperCtrl extends Application {
 
     public void start(Stage stage) throws Exception {
         model.start(stage);
+        justOpened = true;
 
         stage.addEventHandler(KeyEvent.KEY_RELEASED, (key) -> {
-            model.modelGreetScreen();
-
-            if(model.gameActive != true){
+            if(model.gameActive != true && justOpened == false){
                 model.modelStartGame();
                 out.println("game started");
             }
+            if(model.gameActive != true && justOpened == true){
+                justOpened = false;
+                model.modelTitleTransition();
+                out.println("game started from greet screen");
+            }
         });
-    }
-    public mainesweeperModel getModel(){
-        return model;
     }
 }

@@ -30,7 +30,11 @@ import java.util.Random;
 
 import static java.lang.System.out;
 
-public class mainesweeperView extends Application {
+public class mainesweeperView extends Application{
+    Pane main;
+    StackPane rootPane;
+    Scene scene;
+
     Text disclaimer = new Text(20, 760, "disclaimer: turn your volume\ndown to prevent permanent\near damage (seriously; don't sue me)");
     Text greetMAIN = new Text(100, 250, "MAIN");
     Text greetSweeper = new Text(430, 250, "-esweeper");
@@ -38,9 +42,8 @@ public class mainesweeperView extends Application {
     FadeTransition fadeInPressAKey;
     FadeTransition fadeOutPressAKey;
     int greenDarkenCounter;
-    Group startGreetingMineSweeper = new Group(disclaimer, pressAKey, greetSweeper, greetMAIN);
-
-    Group startGreeting = new Group(startGreetingMineSweeper);
+    Group startGreeting = new Group(disclaimer, pressAKey, greetSweeper, greetMAIN);
+    Timeline greetTransitionScrollAnim;
 
     Text time = new Text(100, 125, "TIME: ");
     Text score = new Text(100, 150, "SCORE: ");
@@ -64,10 +67,45 @@ public class mainesweeperView extends Application {
     }
 
     public void start(Stage stage) throws Exception {
-        playSound("titlemusic");
-
         mineGridGroup = new Group();
         mineGridGroup.setVisible(false);
+
+        lose.setVisible(false);
+
+        main = new Pane();
+        rootPane = new StackPane(main);
+
+        rootPane.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                main.setScaleX(newValue.doubleValue() / 800.0);
+                main.setScaleY(newValue.doubleValue() / 800.0);
+            }
+        });
+        rootPane.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                main.setScaleX(newValue.doubleValue() / 800.0);
+                main.setScaleY(newValue.doubleValue() / 800.0);
+            }
+        });
+
+        scene = new Scene(rootPane, 800/* * scale*/, 800/* * scale*/);    //450,600
+        stage.setTitle("-MAN-sweeper");
+        stage.setScene(scene);
+
+        stage.show();
+    }
+
+    public void viewGreetScreen() {
+        playSound("titlemusic");
+
+        greetMAIN.setX(main.getScaleX() * 100);
+        greetSweeper.setX(main.getScaleX() * 430);
+        pressAKey.setX(main.getScaleX() * 300);
+        greetMAIN.setY(main.getScaleY() * 250);
+        greetSweeper.setY(main.getScaleY() * 250);
+        pressAKey.setY(main.getScaleY() * 650);
 
         disclaimer.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.ITALIC, 10));
         disclaimer.setFill(Color.rgb(100, 100, 100));
@@ -108,48 +146,13 @@ public class mainesweeperView extends Application {
         fadeOutPressAKey.setOnFinished(event -> {
             fadeInPressAKey.play();
         });
-        ;
 
-        loseText.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 50));
-        lose.setVisible(false);
-
-        Pane main = new Pane(startGreeting, lose, mineGridGroup);
-        StackPane rootPane = new StackPane(main);
-
-        rootPane.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                main.setScaleX(newValue.doubleValue() / 800.0);
-                main.setScaleY(newValue.doubleValue() / 800.0);
-            }
-        });
-        rootPane.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                main.setScaleX(newValue.doubleValue() / 800.0);
-                main.setScaleY(newValue.doubleValue() / 800.0);
-            }
-        });
-
-        greetMAIN.setX(main.getScaleX() * 100);
-        greetSweeper.setX(main.getScaleX() * 430);
-        pressAKey.setX(main.getScaleX() * 300);
-        greetMAIN.setY(main.getScaleY() * 250);
-        greetSweeper.setY(main.getScaleY() * 250);
-        pressAKey.setY(main.getScaleY() * 650);
-
-        Scene scene = new Scene(rootPane, 800/* * scale*/, 800/* * scale*/);    //450,600
-        stage.setTitle("-MAN-sweeper");
-        stage.setScene(scene);
-
-        stage.show();
+        if (main.getChildren().contains(startGreeting))
+            main.getChildren().remove(startGreeting);
+        main.getChildren().add(startGreeting);
     }
 
-    public void viewGreetScreen() {
-        //playSound("win");
-    }
-
-    public void viewGreetTranstition() {
+    public void viewTitleTransition() {
         stopSound();
         playSound("titleboom");
 
@@ -176,50 +179,34 @@ public class mainesweeperView extends Application {
             startGreeting.setEffect(transitionMb);
             startGreeting.setTranslateY(startGreeting.getTranslateY() + 5);
         };
-        Timeline greetTransitionScrollAnim = new Timeline(new KeyFrame(Duration.millis(1), greetTransitionScrollEvent));
+        greetTransitionScrollAnim = new Timeline(new KeyFrame(Duration.millis(1), greetTransitionScrollEvent));
         greetTransitionScrollAnim.setCycleCount(1000);
 
         keyPressedAnim.setOnFinished(event -> {
             greetTransitionScrollAnim.play();
         });
-        greetTransitionScrollAnim.setOnFinished(event -> {
-            viewStartGame();
-        });
     }
 
     public void viewGameOver(String winOrLose) {
+        if (main.getChildren().contains(lose))
+            main.getChildren().remove(lose);
+        main.getChildren().add(lose);
+
+        loseText.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 50));
         if (winOrLose == "LOSE")
             lose.setVisible(true);
+        mineGridGroup.getChildren().clear();
         mineGridGroup.setVisible(false);
     }
 
     public void viewStartGame() {
-        int yOffset = 0;
-        int xOffset = 0;
-        int idTracker = 0;
-        double mineheight = 0;
-        for (int a = 0; a < gridSize; a++) {
-            for (int b = 0; b < gridSize; b++) {
-                Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\minetile.png").toURI().toString());
-                ImageView mineImageView = new ImageView(mineImage);
-                mineImageView.setId(String.valueOf(idTracker));
-
-                mineImageView.setScaleX(0.075);
-                mineImageView.setScaleY(0.075);
-                mineImageView.setX(xOffset);
-                mineImageView.setY(yOffset);
-                xOffset += mineImage.getWidth() * mineImageView.getScaleX();
-
-                mineGridGroup.getChildren().add(mineImageView);
-                mineheight = mineImage.getHeight() * mineImageView.getScaleY();
-                idTracker++;
-            }
-            yOffset += mineheight;
-            xOffset = 0;
-        }
+        if (main.getChildren().contains(mineGridGroup))
+            main.getChildren().remove(mineGridGroup);
+        main.getChildren().add(mineGridGroup);
 
         lose.setVisible(false);
         startGreeting.setVisible(false);
+
         mineGridGroup.setVisible(true);
         for (int a = 0; a < mineGridGroup.getChildren().size(); a++) {
             mineGridGroup.getChildren().get(a).setVisible(false);
@@ -262,6 +249,32 @@ public class mainesweeperView extends Application {
         });
     }
 
+    public void viewGenerateTiles() {
+        int yOffset = 0;
+        int xOffset = 0;
+        int idTracker = 0;
+        double mineheight = 0;
+        for (int a = 0; a < gridSize; a++) {
+            for (int b = 0; b < gridSize; b++) {
+                Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\minetile.png").toURI().toString());
+                ImageView mineImageView = new ImageView(mineImage);
+                mineImageView.setId(idTracker + "");
+
+                mineImageView.setScaleX(0.075);
+                mineImageView.setScaleY(0.075);
+                mineImageView.setX(xOffset);
+                mineImageView.setY(yOffset);
+                xOffset += mineImage.getWidth() * mineImageView.getScaleX();
+
+                mineGridGroup.getChildren().add(mineImageView);
+                mineheight = mineImage.getHeight() * mineImageView.getScaleY();
+                idTracker++;
+            }
+            yOffset += mineheight;
+            xOffset = 0;
+        }
+        out.println(mineGridGroup.getChildren().size());
+    }
     public void playSound(String soundName) {
         try {
         } catch (Exception noStreakSound) {

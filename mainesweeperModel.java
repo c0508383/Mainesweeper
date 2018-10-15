@@ -6,15 +6,14 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Random;
 
 public class mainesweeperModel extends Application {
-    boolean justOpened;
     boolean gameActive;
     boolean gameOver;
     mainesweeperView view = new mainesweeperView();
 
+    boolean firstClick;
     HashMap bombs = new HashMap();
     int gridSize;
 
@@ -23,16 +22,14 @@ public class mainesweeperModel extends Application {
     }
 
     public void start(Stage stage) throws Exception {
-        view.setGridSize(16);
+        gridSize = 16;
+        view.setGridSize(gridSize);
         view.start(stage);
-        view.mineGridGroup.setOnMouseClicked(event -> {
-            modelGameOver("LOSE");
-        });
+        modelGreetScreen();
     }
 
     public void modelGreetScreen() {
         view.viewGreetScreen();
-        justOpened = true;
     }
 
     public void modelGameOver(String winOrLose) {
@@ -41,21 +38,57 @@ public class mainesweeperModel extends Application {
         view.viewGameOver(winOrLose);
     }
 
+    public void modelTitleTransition() {
+        view.viewTitleTransition();
+
+        view.greetTransitionScrollAnim.setOnFinished(event -> {
+            view.viewGenerateTiles();
+            view.viewStartGame();
+            modelFirstClick();
+        });
+    }
+
     public void modelStartGame() {
-        if (justOpened == true) {
-            view.viewGreetTranstition();
-            justOpened = false;
-        } else view.viewStartGame();
+        view.viewGenerateTiles();
+        view.viewStartGame();
+        modelFirstClick();
 
         gameOver = false;
         gameActive = true;
+    }
 
+    public void modelGenerateTiles(int exception) {
         Random rndBomb = new Random();
         int index = 0;
-        while(bombs.size()!=16){
-            bombs.put(index,rndBomb.nextInt(255));
+        while (index != 16) {
+            bombs.put(index, rndBomb.nextInt(255));
+            for (int a = 0; a < bombs.size(); a++) {
+                if (bombs.get(a).equals(exception)) {
+                    bombs.remove(a);
+                    index--;
+                }
+            }
             index++;
         }
         out.println(bombs.toString());
+
+        for (int a = 0; a < view.mineGridGroup.getChildren().size(); a++) {
+            if (bombs.containsValue(a)) {
+                view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {
+                    modelGameOver("LOSE");
+                });
+                out.println("Click event added on bomb#" + view.mineGridGroup.getChildren().get(a).getId());
+            }
+        }
+    }
+
+    public void modelFirstClick() {
+        for (int a = 0; a < view.mineGridGroup.getChildren().size(); a++) {
+            int finalA = a;
+            view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {
+                int index = finalA;
+                modelGenerateTiles(index);
+            });
+        }
     }
 }
