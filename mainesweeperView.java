@@ -275,6 +275,11 @@ public class mainesweeperView extends Application{
         }
         out.println(mineGridGroup.getChildren().size());
     }
+
+    public void revealTile(int index, int number){
+        mineGridGroup.getChildren().get(index).setVisible(false);
+    }
+
     public void playSound(String soundName) {
         try {
         } catch (Exception noStreakSound) {

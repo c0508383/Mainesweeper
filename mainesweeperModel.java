@@ -5,6 +5,7 @@ import static java.lang.System.*;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -44,14 +45,14 @@ public class mainesweeperModel extends Application {
         view.greetTransitionScrollAnim.setOnFinished(event -> {
             view.viewGenerateTiles();
             view.viewStartGame();
-            modelFirstClick();
+            firstClick();
         });
     }
 
     public void modelStartGame() {
         view.viewGenerateTiles();
         view.viewStartGame();
-        modelFirstClick();
+        firstClick();
 
         gameOver = false;
         gameActive = true;
@@ -80,14 +81,15 @@ public class mainesweeperModel extends Application {
                 out.println("Click event added on bomb#" + view.mineGridGroup.getChildren().get(a).getId());
             }
             else{
+                int finalA = a;
                 view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {    //Regular Tiles
-                    modelTileBehavior();
+                    revealTile(finalA);
                 });
             }
         }
     }
 
-    public void modelFirstClick() {
+    public void firstClick() {
         for (int a = 0; a < view.mineGridGroup.getChildren().size(); a++) {
             int finalA = a;
             view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {
@@ -97,7 +99,54 @@ public class mainesweeperModel extends Application {
         }
     }
 
-    public void modelTileBehavior(){
-        
+    public void revealTile(int index){
+        int surroundingBombs = getAdjBombs(index);
+
+        if(surroundingBombs==0){
+            view.revealTile(index,0);
+            tileWipe(index);
+        }
+        else
+            view.revealTile(index,surroundingBombs);
+        //else run a method to change the tile's image corresponding to surroundingBombs
+    }
+
+    public void tileWipe(int index){
+        ArrayList adjTiles = new ArrayList();
+        adjTiles.add(index-17);//top-left
+        adjTiles.add(index-16);//top
+        adjTiles.add(index-15);//top-right
+        adjTiles.add(index+15);//bot-left
+        adjTiles.add(index+16);//bot
+        adjTiles.add(index+17);//bot-right
+
+        for(int a = 0; a < adjTiles.size(); a++){
+            if(getAdjBombs(((int)adjTiles.get(a)))==0) {
+                view.revealTile(a,0);
+                tileWipe(a);
+            }
+            else
+                view.revealTile(a,getAdjBombs(a));
+        }
+    }
+
+    public int getAdjBombs(int index){
+        int adjBombs = 0;
+
+        if(bombs.containsValue(index-17))
+            adjBombs++;
+        if(bombs.containsValue(index-16))
+            adjBombs++;
+        if(bombs.containsValue(index-15))
+            adjBombs++;
+
+        if(bombs.containsValue(index+15))
+            adjBombs++;
+        if(bombs.containsValue(index+16))
+            adjBombs++;
+        if(bombs.containsValue(index+17))
+            adjBombs++;
+
+        return adjBombs;
     }
 }
