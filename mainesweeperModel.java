@@ -74,10 +74,15 @@ public class mainesweeperModel extends Application {
 
         for (int a = 0; a < view.mineGridGroup.getChildren().size(); a++) {
             if (bombs.containsValue(a)) {
-                view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {
+                view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {    //Bombs
                     modelGameOver("LOSE");
                 });
                 out.println("Click event added on bomb#" + view.mineGridGroup.getChildren().get(a).getId());
+            }
+            else{
+                view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {    //Regular Tiles
+                    modelTileBehavior();
+                });
             }
         }
     }
@@ -90,5 +95,9 @@ public class mainesweeperModel extends Application {
                 modelGenerateTiles(index);
             });
         }
+    }
+
+    public void modelTileBehavior(){
+        
     }
 }
