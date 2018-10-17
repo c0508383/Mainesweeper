@@ -24,7 +24,7 @@ public class mainesweeperCtrl extends Application {
                 model.modelStartGame();
                 out.println("game started");
             }
-            if(model.gameActive != true && justOpened == true){
+            if(model.gameActive != true && justOpened == true && model.view.greenDarkenCounter==0){
                 justOpened = false;
                 model.modelTitleTransition();
                 out.println("game started from greet screen");

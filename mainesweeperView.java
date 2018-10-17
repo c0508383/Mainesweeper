@@ -26,11 +26,14 @@ import javafx.util.Duration;
 import javafx.scene.image.*;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Random;
 
+import static java.lang.System.getenv;
+import static java.lang.System.in;
 import static java.lang.System.out;
 
-public class mainesweeperView extends Application{
+public class mainesweeperView extends Application {
     Pane main;
     StackPane rootPane;
     Scene scene;
@@ -276,8 +279,11 @@ public class mainesweeperView extends Application{
         out.println(mineGridGroup.getChildren().size());
     }
 
-    public void revealTile(int index, int number){
-        mineGridGroup.getChildren().get(index).setVisible(false);
+    public void revealTile(int index, int number) {
+        if (number == -1) {//bomb
+            out.println("set bomb invisible");
+            mineGridGroup.getChildren().get(index).setOpacity(0.5);
+        }
     }
 
     public void playSound(String soundName) {
