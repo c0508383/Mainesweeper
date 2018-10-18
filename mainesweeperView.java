@@ -282,7 +282,17 @@ public class mainesweeperView extends Application {
     public void revealTile(int index, int number) {
         if (number == -1) {//bomb
             out.println("set bomb invisible");
-            mineGridGroup.getChildren().get(index).setOpacity(0.5);
+
+            Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\mine.png").toURI().toString());
+            ImageView mineImageView = new ImageView(mineImage);
+            mineImageView.setId(mineGridGroup.getChildren().get(index).getId());
+
+            mineImageView.setX(mineGridGroup.getChildren().get(index).getLayoutX());
+            mineImageView.setY(mineGridGroup.getChildren().get(index).getLayoutY());
+            mineImageView.setScaleX(mineGridGroup.getChildren().get(index).getScaleX());
+            mineImageView.setScaleY(mineGridGroup.getChildren().get(index).getScaleY());
+
+            mineGridGroup.getChildren().set(index,mineImageView);
         }
     }
 
