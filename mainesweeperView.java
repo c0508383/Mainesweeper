@@ -284,6 +284,8 @@ public class mainesweeperView extends Application {
             out.println("set bomb invisible");
             mineGridGroup.getChildren().get(index).setOpacity(0.5);
         }
+        else
+            mineGridGroup.getChildren().get(index).setVisible(false);
     }
 
     public void playSound(String soundName) {

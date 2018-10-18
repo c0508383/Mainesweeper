@@ -15,10 +15,8 @@ public class mainesweeperModel extends Application {
     boolean gameOver;
     mainesweeperView view = new mainesweeperView();
 
-    boolean firstClick;
     HashMap bombs = new HashMap();
     int gridSize;
-    int revTilesInd;
     HashMap revealedTiles = new HashMap();
 
     public static void main(String[] args) {
@@ -53,6 +51,7 @@ public class mainesweeperModel extends Application {
     }
 
     public void modelStartGame() {
+        revealedTiles.clear();
         view.viewGenerateTiles();
         view.viewStartGame();
         firstClick();
@@ -115,31 +114,35 @@ public class mainesweeperModel extends Application {
     public void tileWipe(int index) {
         out.println(index);
 
-        revealedTiles.put(revTilesInd, index);
-        revTilesInd++;
+        revealedTiles.put(revealedTiles.size(), index);
+        ArrayList<Integer> adjTiles = new ArrayList();
 
-        ArrayList adjTiles = new ArrayList();
         if (index - 17 >= 0 && index % 16 != 0)
             adjTiles.add(index - 17);//top-left
         if (index - 16 >= 0)
             adjTiles.add(index - 16);//top
-        if (index - 15 >= 0 && (index + 1) % 16 != 0)
+        if (index - 15 >= 0 && index % 15 != 0)
             adjTiles.add(index - 15);//top-right
 
-        if (index + 15 <= 255 && (index + 1) % 16 != 0)
+        if (index + 15 <= 255 && index!=0)
             adjTiles.add(index + 15);//bot-left
         if (index + 16 <= 255)
             adjTiles.add(index + 16);//bot
-        if (index + 17 <= 255 && index % 16 != 0)
+        if (index + 17 <= 255 && index % 15 != 0)
             adjTiles.add(index + 17);//bot-right
 
+        if (index + 1 <= 255 && index % 15 != 0)
+            adjTiles.add(index + 1);
+        if (index - 1 >= 0 && index % 16 != 0)
+            adjTiles.add(index - 1);
+
         for (int a = 0; a < adjTiles.size(); a++) {
-            if (getAdjBombs(((int) adjTiles.get(a))) == 0) {
-                view.revealTile((int) adjTiles.get(a), 0);
+            if (getAdjBombs(adjTiles.get(a)) == 0) {
+                view.revealTile(adjTiles.get(a), 0);
                 if (revealedTiles.containsValue(adjTiles.get(a)) == false && bombs.containsValue(adjTiles.get(a)) == false)
-                    tileWipe((int) adjTiles.get(a));
+                    tileWipe(adjTiles.get(a));
             } else if (bombs.containsValue(adjTiles.get(a)) == false)
-                view.revealTile((int) adjTiles.get(a), getAdjBombs(a));
+                view.revealTile(adjTiles.get(a), getAdjBombs(a));
         }
     }
 
@@ -150,14 +153,19 @@ public class mainesweeperModel extends Application {
             adjBombs++;
         if (bombs.containsValue(index - 16) && (index - 16 >= 0))
             adjBombs++;
-        if (bombs.containsValue(index - 15) && (index - 15 >= 0) && (index + 1) % 16 != 0)
+        if (bombs.containsValue(index - 15) && (index - 15 >= 0) && index % 15 != 0)
             adjBombs++;
 
-        if (bombs.containsValue(index + 15) && (index + 15 <= 255) && (index + 1) % 16 != 0)
+        if (bombs.containsValue(index + 15) && (index + 15 <= 255) && index % 16 != 0)
             adjBombs++;
         if (bombs.containsValue(index + 16) && (index + 16 <= 255))
             adjBombs++;
-        if (bombs.containsValue(index + 17) && (index + 17 <= 255) && index % 16 != 0)
+        if (bombs.containsValue(index + 17) && (index + 17 <= 255) && index % 15 != 0)
+            adjBombs++;
+
+        if (bombs.containsValue(index + 1) && index + 1 <= 255 && index % 15 != 0)
+            adjBombs++;
+        if (bombs.containsValue(index - 1) && index - 1 >= 0 && index % 16 != 0)
             adjBombs++;
 
         return adjBombs;
