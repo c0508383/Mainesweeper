@@ -265,8 +265,8 @@ public class mainesweeperView extends Application {
 
                 mineImageView.setScaleX(0.075);
                 mineImageView.setScaleY(0.075);
-                mineImageView.setX(xOffset);
-                mineImageView.setY(yOffset);
+                mineImageView.setLayoutX(xOffset);
+                mineImageView.setLayoutY(yOffset);
                 xOffset += mineImage.getWidth() * mineImageView.getScaleX();
 
                 mineGridGroup.getChildren().add(mineImageView);
@@ -280,22 +280,21 @@ public class mainesweeperView extends Application {
     }
 
     public void revealTile(int index, int number) {
-        if (number == -1) {//bomb
-            out.println("set bomb invisible");
-
-            Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\mine.png").toURI().toString());
-            ImageView mineImageView = new ImageView(mineImage);
-            mineImageView.setId(mineGridGroup.getChildren().get(index).getId());
-
-            mineImageView.setX(mineGridGroup.getChildren().get(index).getLayoutX());
-            mineImageView.setY(mineGridGroup.getChildren().get(index).getLayoutY());
-            mineImageView.setScaleX(mineGridGroup.getChildren().get(index).getScaleX());
-            mineImageView.setScaleY(mineGridGroup.getChildren().get(index).getScaleY());
-
-            mineGridGroup.getChildren().set(index,mineImageView);
-        }
+        Image tileImage = new Image(new File("src\\MAINesweeper\\img\\mine\\mine.png").toURI().toString());
+        if(number==-1)
+            tileImage = new Image(new File("src\\MAINesweeper\\img\\mine\\mine.png").toURI().toString());
         else
-            mineGridGroup.getChildren().get(index).setVisible(false);
+            tileImage = new Image(new File("src\\MAINesweeper\\img\\mine\\"+number+".png").toURI().toString());
+
+        ImageView tileImageView = new ImageView(tileImage);
+        tileImageView.setId(mineGridGroup.getChildren().get(index).getId());
+
+        tileImageView.setScaleX(.075);
+        tileImageView.setScaleY(.075);
+        tileImageView.setLayoutX(mineGridGroup.getChildren().get(index).getLayoutX());
+        tileImageView.setLayoutY(mineGridGroup.getChildren().get(index).getLayoutY());
+
+        mineGridGroup.getChildren().set(index,tileImageView);
     }
 
     public void playSound(String soundName) {
