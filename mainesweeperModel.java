@@ -95,6 +95,7 @@ public class mainesweeperModel extends Application {
             view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {
                 int index = finalA;
                 modelGenerateTiles(index);
+                revealTiles(index);
             });
         }
     }
@@ -126,21 +127,20 @@ public class mainesweeperModel extends Application {
             for (int a = 0; a < wipeTiles.size(); a++) {
                 if (bombs.containsValue(wipeTiles.get(a)) == false && revealedTiles.containsValue(wipeTiles.get(a)) == false) {
                     revealedTiles.put(revealedTiles.size(), wipeTiles.get(a));
-                    view.revealTile(index,0);
+                    view.revealTile(index, 0);
 
                     if (getAdjBombs(wipeTiles, wipeTiles.get(a)) == 0)
                         revealTiles(wipeTiles.get(a));
                 }
             }
-        }
-        else
-            view.revealTile(index,getAdjBombs(wipeTiles,index));
+        } else
+            view.revealTile(index, getAdjBombs(wipeTiles, index));
     }
 
     public int getAdjBombs(ArrayList tiles, int index) {
         ArrayList adjTiles = new ArrayList(tiles);
-        for(int a = 0; a < adjTiles.size(); a++){
-            if(adjTiles.get(a).equals(index))
+        for (int a = 0; a < adjTiles.size(); a++) {
+            if (adjTiles.get(a).equals(index))
                 adjTiles.remove(a);
         }
 
