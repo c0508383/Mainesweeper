@@ -58,6 +58,8 @@ public class mainesweeperModel extends Application {
     }
 
     public void modelGenerateTiles(int exception) {
+        revealedTiles.clear();
+
         Random rndBomb = new Random();
         int index = 0;
         while (index != 40) {
@@ -121,9 +123,26 @@ public class mainesweeperModel extends Application {
             wipeTiles.add(wipeTiles.size(), index + 17);
 
         for (int a = 0; a < wipeTiles.size(); a++) {
-            if (bombs.containsValue(wipeTiles.get(a)) == false && revealedTiles.containsValue(wipeTiles.get(a))==false)
+            if (bombs.containsValue(wipeTiles.get(a)) == false && revealedTiles.containsValue(wipeTiles.get(a)) == false) {
+                revealedTiles.put(revealedTiles.size(), wipeTiles.get(a));
                 view.mineGridGroup.getChildren().get(wipeTiles.get(a)).setVisible(false);
-            revealedTiles.put(revealedTiles.size(), wipeTiles.get(a));
+
+                if (getAdjBombs(wipeTiles,a) == 0)
+                    revealTiles(wipeTiles.get(a));
+            }
         }
+    }
+
+    public int getAdjBombs(ArrayList tiles, int index) {
+        ArrayList adjTiles = new ArrayList(tiles);
+        adjTiles.remove(index);
+
+        int adjBombInt = 0;
+        for (int a = 0; a < adjTiles.size(); a++) {
+            if (bombs.containsValue(adjTiles.get(a)))
+                adjBombInt++;
+        }
+
+        return adjBombInt;
     }
 }
