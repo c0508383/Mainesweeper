@@ -280,10 +280,9 @@ public class mainesweeperView extends Application {
     }
 
     public void revealTile(int index, int number) {
-        if (number == -1) {//bomb
             out.println("set bomb invisible");
 
-            Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\mine.png").toURI().toString());
+            Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\"+number+".png").toURI().toString());
             ImageView mineImageView = new ImageView(mineImage);
             mineImageView.setId(mineGridGroup.getChildren().get(index).getId());
 
@@ -293,9 +292,6 @@ public class mainesweeperView extends Application {
             mineImageView.setScaleY(mineGridGroup.getChildren().get(index).getScaleY());
 
             mineGridGroup.getChildren().set(index,mineImageView);
-        }
-        else
-            mineGridGroup.getChildren().get(index).setVisible(false);
     }
 
     public void playSound(String soundName) {
