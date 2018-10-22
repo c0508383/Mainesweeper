@@ -294,6 +294,8 @@ public class mainesweeperView extends Application {
 
             mineGridGroup.getChildren().set(index,mineImageView);
         }
+        else
+            mineGridGroup.getChildren().get(index).setVisible(false);
     }
 
     public void playSound(String soundName) {

@@ -122,20 +122,27 @@ public class mainesweeperModel extends Application {
         if (index + 17 <= 255 && (index + 1) % 16 != 0 && (index + 17) <= 255)
             wipeTiles.add(wipeTiles.size(), index + 17);
 
-        for (int a = 0; a < wipeTiles.size(); a++) {
-            if (bombs.containsValue(wipeTiles.get(a)) == false && revealedTiles.containsValue(wipeTiles.get(a)) == false) {
-                revealedTiles.put(revealedTiles.size(), wipeTiles.get(a));
-                view.mineGridGroup.getChildren().get(wipeTiles.get(a)).setVisible(false);
+        if (getAdjBombs(wipeTiles, index) == 0) {
+            for (int a = 0; a < wipeTiles.size(); a++) {
+                if (bombs.containsValue(wipeTiles.get(a)) == false && revealedTiles.containsValue(wipeTiles.get(a)) == false) {
+                    revealedTiles.put(revealedTiles.size(), wipeTiles.get(a));
+                    view.revealTile(index,0);
 
-                if (getAdjBombs(wipeTiles,a) == 0)
-                    revealTiles(wipeTiles.get(a));
+                    if (getAdjBombs(wipeTiles, wipeTiles.get(a)) == 0)
+                        revealTiles(wipeTiles.get(a));
+                }
             }
         }
+        else
+            view.revealTile(index,getAdjBombs(wipeTiles,index));
     }
 
     public int getAdjBombs(ArrayList tiles, int index) {
         ArrayList adjTiles = new ArrayList(tiles);
-        adjTiles.remove(index);
+        for(int a = 0; a < adjTiles.size(); a++){
+            if(adjTiles.get(a).equals(index))
+                adjTiles.remove(a);
+        }
 
         int adjBombInt = 0;
         for (int a = 0; a < adjTiles.size(); a++) {
