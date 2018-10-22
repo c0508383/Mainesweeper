@@ -5,16 +5,14 @@ import static java.lang.System.*;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class mainesweeperModel extends Application {
     boolean gameActive;
     boolean gameOver;
     mainesweeperView view = new mainesweeperView();
 
+    boolean firstClick;
     HashMap bombs = new HashMap();
     int gridSize;
     HashMap revealedTiles = new HashMap();
@@ -51,7 +49,6 @@ public class mainesweeperModel extends Application {
     }
 
     public void modelStartGame() {
-        revealedTiles.clear();
         view.viewGenerateTiles();
         view.viewStartGame();
         firstClick();
@@ -84,7 +81,7 @@ public class mainesweeperModel extends Application {
             } else {
                 int finalA = a;
                 view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {    //Regular Tiles
-                    revealTile(finalA);
+                    revealTiles(finalA);
                 });
             }
         }
@@ -100,74 +97,33 @@ public class mainesweeperModel extends Application {
         }
     }
 
-    public void revealTile(int index) {
-        int surroundingBombs = getAdjBombs(index);
+    public void revealTiles(int index) {
+        ArrayList<Integer> wipeTiles = new ArrayList();
 
-        if (surroundingBombs == 0) {
-            view.revealTile(index, 0);
-            tileWipe(index);
-        } else
-            view.revealTile(index, surroundingBombs);
-        //else run a method to change the tile's image corresponding to surroundingBombs
-    }
+        if (index % 16 != 0 && (index - 17) >= 0)
+            wipeTiles.add(wipeTiles.size(), index - 17);
+        if ((index - 16) >= 0 && (index - 16) >= 0)
+            wipeTiles.add(wipeTiles.size(), index - 16);
+        if ((index + 1) % 16 != 0 && (index - 15) >= 0)
+            wipeTiles.add(wipeTiles.size(), index - 15);
 
-    public void tileWipe(int index) {
-        out.println(index);
+        if (index % 16 != 0 && (index - 1) >= 0)
+            wipeTiles.add(wipeTiles.size(), index - 1);
+        wipeTiles.add(wipeTiles.size(), index);
+        if ((index + 1) % 16 != 0 && (index + 1) <= 255)
+            wipeTiles.add(wipeTiles.size(), index + 1);
 
-        revealedTiles.put(revealedTiles.size(), index);
-        ArrayList<Integer> adjTiles = new ArrayList();
+        if (index + 15 <= 255 && index % 16 != 0 && (index + 15) <= 255)
+            wipeTiles.add(wipeTiles.size(), index + 15);
+        if (index + 16 <= 255 && (index + 16) <= 255)
+            wipeTiles.add(wipeTiles.size(), index + 16);
+        if (index + 17 <= 255 && (index + 1) % 16 != 0 && (index + 17) <= 255)
+            wipeTiles.add(wipeTiles.size(), index + 17);
 
-        if (index - 17 >= 0 && index % 16 != 0)
-            adjTiles.add(index - 17);//top-left
-        if (index - 16 >= 0)
-            adjTiles.add(index - 16);//top
-        if (index - 15 >= 0 && index % 15 != 0)
-            adjTiles.add(index - 15);//top-right
-
-        if (index + 15 <= 255 && index!=0)
-            adjTiles.add(index + 15);//bot-left
-        if (index + 16 <= 255)
-            adjTiles.add(index + 16);//bot
-        if (index + 17 <= 255 && index % 15 != 0)
-            adjTiles.add(index + 17);//bot-right
-
-        if (index + 1 <= 255 && index % 15 != 0)
-            adjTiles.add(index + 1);
-        if (index - 1 >= 0 && index % 16 != 0)
-            adjTiles.add(index - 1);
-
-        for (int a = 0; a < adjTiles.size(); a++) {
-            if (getAdjBombs(adjTiles.get(a)) == 0) {
-                view.revealTile(adjTiles.get(a), 0);
-                if (revealedTiles.containsValue(adjTiles.get(a)) == false && bombs.containsValue(adjTiles.get(a)) == false)
-                    tileWipe(adjTiles.get(a));
-            } else if (bombs.containsValue(adjTiles.get(a)) == false)
-                view.revealTile(adjTiles.get(a), getAdjBombs(a));
+        for (int a = 0; a < wipeTiles.size(); a++) {
+            if (bombs.containsValue(wipeTiles.get(a)) == false && revealedTiles.containsValue(wipeTiles.get(a))==false)
+                view.mineGridGroup.getChildren().get(wipeTiles.get(a)).setVisible(false);
+            revealedTiles.put(revealedTiles.size(), wipeTiles.get(a));
         }
-    }
-
-    public int getAdjBombs(int index) {
-        int adjBombs = 0;
-
-        if (bombs.containsValue(index - 17) && (index - 17 >= 0) && index % 16 != 0)
-            adjBombs++;
-        if (bombs.containsValue(index - 16) && (index - 16 >= 0))
-            adjBombs++;
-        if (bombs.containsValue(index - 15) && (index - 15 >= 0) && index % 15 != 0)
-            adjBombs++;
-
-        if (bombs.containsValue(index + 15) && (index + 15 <= 255) && index % 16 != 0)
-            adjBombs++;
-        if (bombs.containsValue(index + 16) && (index + 16 <= 255))
-            adjBombs++;
-        if (bombs.containsValue(index + 17) && (index + 17 <= 255) && index % 15 != 0)
-            adjBombs++;
-
-        if (bombs.containsValue(index + 1) && index + 1 <= 255 && index % 15 != 0)
-            adjBombs++;
-        if (bombs.containsValue(index - 1) && index - 1 >= 0 && index % 16 != 0)
-            adjBombs++;
-
-        return adjBombs;
     }
 }
