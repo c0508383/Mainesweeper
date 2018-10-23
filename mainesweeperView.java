@@ -54,6 +54,9 @@ public class mainesweeperView extends Application {
     Text loseText = new Text(85, 300, "==G A M E==O V E R==");
     Group lose = new Group(time, score, loseText);
 
+    Text winText = new Text(85,100,"EYYY");
+    Group win = new Group(time, score, winText);
+
     MediaPlayer soundPlayer;
     Media sound;
 
@@ -198,6 +201,15 @@ public class mainesweeperView extends Application {
         loseText.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 50));
         if (winOrLose == "LOSE")
             lose.setVisible(true);
+
+        if (main.getChildren().contains(win))
+            main.getChildren().remove(win);
+        main.getChildren().add(win);
+
+        winText.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 50));
+        if (winOrLose == "WIN")
+            win.setVisible(true);
+
         mineGridGroup.getChildren().clear();
         mineGridGroup.setVisible(false);
     }

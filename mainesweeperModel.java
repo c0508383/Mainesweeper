@@ -3,6 +3,9 @@ package MAINesweeper;
 import static java.lang.System.*;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.util.*;
@@ -12,10 +15,11 @@ public class mainesweeperModel extends Application {
     boolean gameOver;
     mainesweeperView view = new mainesweeperView();
 
-    boolean firstClick;
     HashMap bombs = new HashMap();
     int gridSize;
     HashMap revealedTiles = new HashMap();
+
+    HashMap flags = new HashMap();
 
     public static void main(String[] args) {
         launch(args);
@@ -77,13 +81,28 @@ public class mainesweeperModel extends Application {
         for (int a = 0; a < view.mineGridGroup.getChildren().size(); a++) {
             if (bombs.containsValue(a)) {
                 view.revealTile(a, -1);
+                int finalA = a;
                 view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {    //Bombs
-                    modelGameOver("LOSE");
+                    MouseButton button = event.getButton();
+                    if (button == MouseButton.PRIMARY)
+                        modelGameOver("LOSE");
+                    else if (button == MouseButton.SECONDARY) {
+                        view.revealTile(finalA, 10);
+                        if (addFlag(finalA) == true)
+                            modelGameOver("WIN");
+                    }
                 });
             } else {
                 int finalA = a;
-                view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {    //Regular Tiles
-                    revealTiles(finalA);
+                view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {
+                    MouseButton button = event.getButton();
+                    if (button == MouseButton.PRIMARY) {
+                        revealTiles(finalA);
+                    } else if (button == MouseButton.SECONDARY) {
+                        view.revealTile(finalA, 10);
+                        if (addFlag(finalA))
+                            modelGameOver("WIN");
+                    }
                 });
             }
         }
@@ -93,9 +112,12 @@ public class mainesweeperModel extends Application {
         for (int a = 0; a < view.mineGridGroup.getChildren().size(); a++) {
             int finalA = a;
             view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {
-                int index = finalA;
-                modelGenerateTiles(index);
-                revealTiles(index);
+                MouseButton button = event.getButton();
+                if (button == MouseButton.PRIMARY) {
+                    int index = finalA;
+                    modelGenerateTiles(index);
+                    revealTiles(index);
+                }
             });
         }
     }
@@ -151,5 +173,15 @@ public class mainesweeperModel extends Application {
         }
 
         return adjBombInt;
+    }
+
+    public boolean addFlag(int index) {
+        flags.put(flags.size(), index);
+
+        for (int a = 0; a < flags.size(); a++) {
+            if (bombs.containsValue(flags.get(a)) == false)
+                return false;
+        }
+        return true;
     }
 }
