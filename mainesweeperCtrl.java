@@ -22,12 +22,10 @@ public class mainesweeperCtrl extends Application {
         stage.addEventHandler(KeyEvent.KEY_RELEASED, (key) -> {
             if(model.gameActive != true && justOpened == false){
                 model.modelStartGame();
-                out.println("game started");
             }
             if(model.gameActive != true && justOpened == true && model.view.greenDarkenCounter==0){
                 justOpened = false;
                 model.modelTitleTransition();
-                out.println("game started from greet screen");
             }
         });
     }
