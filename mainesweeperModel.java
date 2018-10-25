@@ -64,25 +64,19 @@ public class mainesweeperModel extends Application {
 
     public void modelGenerateTiles(int exception) {
         revealedTiles.clear();
+        flags.clear();
 
         Random rndBomb = new Random();
         int index = 0;
         while (index != 40) {
             int value = rndBomb.nextInt(255);
-            if(bombs.containsValue(value)==false)
+            if(bombs.containsValue(value)==false && value!=exception)
                 bombs.put(index, value);
-            for (int a = 0; a < bombs.size(); a++) {
-                if (bombs.get(a).equals(exception)) {
-                    bombs.remove(a);
-                    index--;
-                }
-            }
+            if(bombs.size()==index)
+                index--;
             index++;
         }
         out.println(bombs.toString());
-
-        bombsint = 0;
-        out.println(view.mineGridGroup.getChildren().size());
 
         for (int a = 0; a < view.mineGridGroup.getChildren().size(); a++) {
             int finalA = a;
@@ -110,7 +104,6 @@ public class mainesweeperModel extends Application {
                 }
             });
         }
-        out.println(bombsint);
     }
 
     public void firstClick() {
@@ -119,9 +112,8 @@ public class mainesweeperModel extends Application {
             view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {
                 MouseButton button = event.getButton();
                 if (button == MouseButton.PRIMARY) {
-                    int index = finalA;
-                    modelGenerateTiles(index);
-                    revealTiles(index);
+                    modelGenerateTiles(finalA);
+                    revealTiles(finalA);
                 }
             });
         }

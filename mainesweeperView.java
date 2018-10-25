@@ -54,7 +54,7 @@ public class mainesweeperView extends Application {
     Text loseText = new Text(85, 300, "==G A M E==O V E R==");
     Group lose = new Group(time, score, loseText);
 
-    Text winText = new Text(85,100,"EYYY");
+    Text winText = new Text(85, 100, "EYYY");
     Group win = new Group(time, score, winText);
 
     MediaPlayer soundPlayer;
@@ -75,8 +75,6 @@ public class mainesweeperView extends Application {
     public void start(Stage stage) throws Exception {
         mineGridGroup = new Group();
         mineGridGroup.setVisible(false);
-
-        lose.setVisible(false);
 
         main = new Pane();
         rootPane = new StackPane(main);
@@ -220,6 +218,7 @@ public class mainesweeperView extends Application {
         main.getChildren().add(mineGridGroup);
 
         lose.setVisible(false);
+        win.setVisible(false);
         startGreeting.setVisible(false);
 
         mineGridGroup.setVisible(true);
@@ -288,18 +287,18 @@ public class mainesweeperView extends Application {
             yOffset += mineheight;
             xOffset = 0;
         }
-        out.println(mineGridGroup.getChildren().size());
     }
 
     public void revealTile(int index, int number) {
         if (number == 255 || number == 0 || number == 240 || number == 15)
             out.println("corner blanked");
 
-        Image mineImage;
+        Random rnd = new Random();
+        Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\" + number + ".png").toURI().toString());
         if (number == -1)
             mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\boom0.png").toURI().toString());
-        else
-            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\" + number + ".png").toURI().toString());
+        if (number == 10)
+            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\thonk\\thonk0.gif").toURI().toString());
         ImageView mineImageView = new ImageView(mineImage);
         mineImageView.setId(mineGridGroup.getChildren().get(index).getId());
 
@@ -307,7 +306,6 @@ public class mainesweeperView extends Application {
         mineImageView.setLayoutY(mineGridGroup.getChildren().get(index).getLayoutY());
         mineImageView.setScaleX(mineGridGroup.getChildren().get(index).getScaleX());
         mineImageView.setScaleY(mineGridGroup.getChildren().get(index).getScaleY());
-
         mineGridGroup.getChildren().set(index, mineImageView);
     }
 
