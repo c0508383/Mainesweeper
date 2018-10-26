@@ -70,9 +70,9 @@ public class mainesweeperModel extends Application {
         int index = 0;
         while (index != 40) {
             int value = rndBomb.nextInt(255);
-            if(bombs.containsValue(value)==false && value!=exception)
+            if (bombs.containsValue(value) == false && value != exception)
                 bombs.put(index, value);
-            if(bombs.size()==index)
+            if (bombs.size() == index)
                 index--;
             index++;
         }
@@ -88,6 +88,7 @@ public class mainesweeperModel extends Application {
                         modelGameOver("LOSE");
                     else if (button == MouseButton.SECONDARY) {
                         view.revealTile(finalA, 10);
+
                         if (addFlag(finalA) == true)
                             modelGameOver("WIN");
                     }
@@ -175,7 +176,6 @@ public class mainesweeperModel extends Application {
     public boolean addFlag(int index) {
         flags.put(flags.size(), index);
 
-        out.println(flags.size() + "," + bombs.size());
         if (flags.size() == bombs.size()) {
             for (int a = 0; a < flags.size(); a++) {
                 if (bombs.containsValue(flags.get(a)) == false)
@@ -184,6 +184,18 @@ public class mainesweeperModel extends Application {
             out.println("the prophecy is fulfilled");
             return true;
         }
+        for (int a = 0; a < flags.size(); a++) {
+            if ((Integer) flags.get(a) == index)
+                flags.remove(a);
+        }
+
         return false;
+    }
+
+    public void removeFlag(int index) {
+        for (int a = 0; a < flags.size(); a++) {
+            if ((Integer) flags.get(a) == index)
+                flags.remove(a);
+        }
     }
 }

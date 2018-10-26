@@ -11,6 +11,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.effect.MotionBlur;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
@@ -290,15 +291,15 @@ public class mainesweeperView extends Application {
     }
 
     public void revealTile(int index, int number) {
-        if (number == 255 || number == 0 || number == 240 || number == 15)
-            out.println("corner blanked");
 
         Random rnd = new Random();
         Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\" + number + ".png").toURI().toString());
+
         if (number == -1)
             mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\boom0.png").toURI().toString());
         if (number == 10)
-            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\thonk\\thonk0.gif").toURI().toString());
+            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\thonk\\thonk0.png").toURI().toString());
+
         ImageView mineImageView = new ImageView(mineImage);
         mineImageView.setId(mineGridGroup.getChildren().get(index).getId());
 
@@ -306,6 +307,7 @@ public class mainesweeperView extends Application {
         mineImageView.setLayoutY(mineGridGroup.getChildren().get(index).getLayoutY());
         mineImageView.setScaleX(mineGridGroup.getChildren().get(index).getScaleX());
         mineImageView.setScaleY(mineGridGroup.getChildren().get(index).getScaleY());
+
         mineGridGroup.getChildren().set(index, mineImageView);
     }
 
