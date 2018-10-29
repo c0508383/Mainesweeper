@@ -11,7 +11,8 @@ import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.effect.MotionBlur;
-import javafx.scene.input.MouseButton;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
@@ -24,14 +25,9 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import javafx.scene.image.*;
-
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Random;
 
-import static java.lang.System.getenv;
-import static java.lang.System.in;
 import static java.lang.System.out;
 
 public class mainesweeperView extends Application {
@@ -308,7 +304,6 @@ public class mainesweeperView extends Application {
     }
 
     public void revealTile(int index, int number) {
-
         Random rnd = new Random();
         Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\" + number + ".png").toURI().toString());
 
@@ -355,6 +350,15 @@ public class mainesweeperView extends Application {
         String path = "src/MAINesweeper/snd/";
         int randomSndDir = 0;
 
+        if(soundName=="clickmine"){
+            path+="misc/clickmine.wav";
+        }
+        if(soundName=="clickfirstmine"){
+            path+="misc/clickfirstmine.wav";
+        }
+        if(soundName=="guess"){
+            path+="misc/guess.wav";
+        }
         if (soundName == "win") {
             path += "win/win0.wav";
         }

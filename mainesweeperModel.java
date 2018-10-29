@@ -1,15 +1,15 @@
 package MAINesweeper;
 
-import static java.lang.System.*;
-
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
-import java.sql.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Random;
+
+import static java.lang.System.out;
 
 public class mainesweeperModel extends Application {
     boolean gameActive;
@@ -72,7 +72,7 @@ public class mainesweeperModel extends Application {
         int index = 0;
         while (index != 40) {
             int value = rndBomb.nextInt(255);
-            if (containsValue(bombs,value) == false && value != exception)
+            if (containsValue(bombs, value) == false && value != exception)
                 bombs.add(value);
             if (bombs.size() == index)
                 index--;
@@ -82,22 +82,28 @@ public class mainesweeperModel extends Application {
 
         for (int a = 0; a < view.mineGridGroup.getChildren().size(); a++) {
             int finalA = a;
-            if (containsValue(bombs,a)) {
+            if (containsValue(bombs, a)) {
                 view.revealTile(a, -1);
                 view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {    //Bombs
                     MouseButton button = event.getButton();
                     if (button == MouseButton.PRIMARY)
                         gameOver("LOSE");
-                    if (button == MouseButton.SECONDARY)
+                    if (button == MouseButton.SECONDARY) {
                         addFlag(finalA);
+                        view.playSound("guess");
+                    }
                 });
             } else {
                 view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {
                     MouseButton button = event.getButton();
-                    if (button == MouseButton.PRIMARY)
+                    if (button == MouseButton.PRIMARY) {
                         revealTiles(finalA);
-                    if (button == MouseButton.SECONDARY)
+                        view.playSound("clickmine");
+                    }
+                    if (button == MouseButton.SECONDARY) {
                         addFlag(finalA);
+                        view.playSound("guess");
+                    }
                 });
             }
         }
@@ -111,6 +117,7 @@ public class mainesweeperModel extends Application {
                 if (button == MouseButton.PRIMARY) {
                     modelGenerateTiles(finalA);
                     revealTiles(finalA);
+                    view.playSound("clickfirstmine");
                 }
             });
         }
@@ -139,18 +146,18 @@ public class mainesweeperModel extends Application {
         if (index + 17 <= 255 && (index + 1) % 16 != 0 && (index + 17) <= 255)
             wipeTiles.add(wipeTiles.size(), index + 17);
 
+        view.revealTile(index, getAdjBombs(wipeTiles, index));
         if (getAdjBombs(wipeTiles, index) == 0) {
             for (int a = 0; a < wipeTiles.size(); a++) {
-                if (containsValue(bombs,wipeTiles.get(a)) == false && revealedTiles.containsValue(wipeTiles.get(a)) == false) {
+                if (containsValue(bombs, wipeTiles.get(a)) == false && revealedTiles.containsValue(wipeTiles.get(a)) == false) {
                     revealedTiles.put(revealedTiles.size(), wipeTiles.get(a));
-                    view.revealTile(index, 0);
 
                     if (getAdjBombs(wipeTiles, wipeTiles.get(a)) == 0)
                         revealTiles(wipeTiles.get(a));
                 }
             }
-        } else
-            view.revealTile(index, getAdjBombs(wipeTiles, index));
+        }
+
     }
 
     public int getAdjBombs(ArrayList tiles, int index) {
@@ -162,7 +169,7 @@ public class mainesweeperModel extends Application {
 
         int adjBombInt = 0;
         for (int a = 0; a < adjTiles.size(); a++) {
-            if (containsValue(bombs,(Integer)adjTiles.get(a)))
+            if (containsValue(bombs, (Integer) adjTiles.get(a)))
                 adjBombInt++;
         }
 
@@ -170,7 +177,7 @@ public class mainesweeperModel extends Application {
     }
 
     public void addFlag(int index) {
-        if (containsValue(flags,index) == false) {
+        if (containsValue(flags, index) == false) {
             flags.add(index);
             view.addFlag(index, flags.size());
 
@@ -180,13 +187,14 @@ public class mainesweeperModel extends Application {
                     removeFlag(index);
                 }
             });
-            if (sortCheck(flags,bombs)==true) {
+            if (sortCheck(flags, bombs) == true) {
                 gameOver("WIN");
             }
         }
     }
+
     public void removeFlag(int index) {
-        if (containsValue(flags,index) == true) {
+        if (containsValue(flags, index) == true) {
             out.println(flags);
             for (int a = 0; a < flags.size(); a++) {
                 if (flags.get(a).equals(index)) {
@@ -201,7 +209,7 @@ public class mainesweeperModel extends Application {
                     addFlag(index);
                 }
                 if (button == MouseButton.PRIMARY) {
-                    if (containsValue(bombs,index))
+                    if (containsValue(bombs, index))
                         gameOver("LOSE");
                     else
                         revealTiles(index);
@@ -209,15 +217,17 @@ public class mainesweeperModel extends Application {
             });
         }
     }
-    public boolean sortCheck(ArrayList arrayList1, ArrayList arrayList2){
+
+    public boolean sortCheck(ArrayList arrayList1, ArrayList arrayList2) {
         Collections.sort(arrayList1);
         Collections.sort(arrayList2);
 
         return arrayList1.equals(arrayList2);
     }
-    public boolean containsValue(ArrayList arrayList, int value){
-        for(int a = 0; a < arrayList.size(); a++){
-            if(arrayList.get(a).equals(value))
+
+    public boolean containsValue(ArrayList arrayList, int value) {
+        for (int a = 0; a < arrayList.size(); a++) {
+            if (arrayList.get(a).equals(value))
                 return true;
         }
         return false;
