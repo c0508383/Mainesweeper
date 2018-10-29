@@ -39,6 +39,8 @@ public class mainesweeperView extends Application {
     StackPane rootPane;
     Scene scene;
 
+    MediaPlayer titleScreenPlayer;
+
     Text disclaimer = new Text(20, 760, "disclaimer: turn your volume\ndown to prevent permanent\near damage (seriously; don't sue me)");
     Text greetMAIN = new Text(100, 250, "MAIN");
     Text greetSweeper = new Text(430, 250, "-esweeper");
@@ -55,11 +57,12 @@ public class mainesweeperView extends Application {
     Text loseText = new Text(85, 300, "==G A M E==O V E R==");
     Group lose = new Group(time, score, loseText);
 
-    Text winText = new Text(85, 100, "EYYY");
+    Text winText = new Text(120, 400, "MAINSWEEPED");
     Group win = new Group(time, score, winText);
 
-    MediaPlayer soundPlayer;
-    Media sound;
+    Text flagCounter = new Text(400, 60, ": 40");
+    ImageView flagIcon = new ImageView();
+    Group flagGroup = new Group(flagCounter, flagIcon);
 
     Group mineGridGroup;
     int diagonal;
@@ -76,6 +79,15 @@ public class mainesweeperView extends Application {
     public void start(Stage stage) throws Exception {
         mineGridGroup = new Group();
         mineGridGroup.setVisible(false);
+
+        Image flagImage = new Image(new File("src\\MAINesweeper\\img\\mine\\bluff.png").toURI().toString());
+        flagIcon.setImage(flagImage);
+        flagCounter.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 40));
+        flagCounter.setText(": 40");
+        flagIcon.setScaleX(.15);//.07
+        flagIcon.setScaleY(.15);//.07
+        flagIcon.setLayoutX(100);//-100
+        flagIcon.setLayoutY(-215);//-440
 
         main = new Pane();
         rootPane = new StackPane(main);
@@ -158,7 +170,6 @@ public class mainesweeperView extends Application {
     }
 
     public void viewTitleTransition() {
-        stopSound();
         playSound("titleboom");
 
         pressAKey.setOpacity(1.0);
@@ -205,18 +216,24 @@ public class mainesweeperView extends Application {
             main.getChildren().remove(win);
         main.getChildren().add(win);
 
-        winText.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 50));
+        winText.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 75));
         if (winOrLose == "WIN")
             win.setVisible(true);
 
         mineGridGroup.getChildren().clear();
         mineGridGroup.setVisible(false);
+        flagGroup.setVisible(false);
     }
 
     public void viewStartGame() {
         if (main.getChildren().contains(mineGridGroup))
             main.getChildren().remove(mineGridGroup);
         main.getChildren().add(mineGridGroup);
+
+        if (main.getChildren().contains(flagGroup))
+            main.getChildren().remove(flagGroup);
+        main.getChildren().add(flagGroup);
+        flagGroup.setVisible(false);
 
         lose.setVisible(false);
         win.setVisible(false);
@@ -260,7 +277,7 @@ public class mainesweeperView extends Application {
         gridGenerateAnim.setCycleCount(gridSize * 2);
         gridGenerateAnim.play();
         gridGenerateAnim.setOnFinished(event -> {
-            mineGridGroup.setVisible(true);
+            flagGroup.setVisible(true);
         });
     }
 
@@ -269,9 +286,9 @@ public class mainesweeperView extends Application {
         int xOffset = 0;
         int idTracker = 0;
         double mineheight = 0;
+        Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\minetile.png").toURI().toString());
         for (int a = 0; a < gridSize; a++) {
             for (int b = 0; b < gridSize; b++) {
-                Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\minetile.png").toURI().toString());
                 ImageView mineImageView = new ImageView(mineImage);
                 mineImageView.setId(idTracker + "");
 
@@ -299,9 +316,10 @@ public class mainesweeperView extends Application {
             mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\boom0.png").toURI().toString());
         if (number == 10)
             mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\thonk\\thonk0.png").toURI().toString());
+        if (number == 11)
+            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\minetile.png").toURI().toString());
 
         ImageView mineImageView = new ImageView(mineImage);
-        mineImageView.setId(mineGridGroup.getChildren().get(index).getId());
 
         mineImageView.setLayoutX(mineGridGroup.getChildren().get(index).getLayoutX());
         mineImageView.setLayoutY(mineGridGroup.getChildren().get(index).getLayoutY());
@@ -309,6 +327,23 @@ public class mainesweeperView extends Application {
         mineImageView.setScaleY(mineGridGroup.getChildren().get(index).getScaleY());
 
         mineGridGroup.getChildren().set(index, mineImageView);
+        mineGridGroup.getChildren().get(index).setId(mineGridGroup.getChildren().get(index).getId());
+    }
+
+    public void addFlag(int index, int flags) {
+        flagIcon.setImage(new Image(new File("src\\MAINesweeper\\img\\mine\\thonk\\thonkIcon.png").toURI().toString()));
+        flagIcon.setScaleX(.07);//.07
+        flagIcon.setScaleY(.07);//.07
+        flagIcon.setLayoutX(-100);//-100
+        flagIcon.setLayoutY(-440);//-440
+
+        revealTile(index, 10);
+        flagCounter.setText(": " + (40 - flags));
+    }
+
+    public void removeFlag(int index, int flags) {
+        revealTile(index, 11);
+        flagCounter.setText(": " + (40 - flags));
     }
 
     public void playSound(String soundName) {
@@ -318,7 +353,6 @@ public class mainesweeperView extends Application {
         }
 
         String path = "src/MAINesweeper/snd/";
-        Random rnd = new Random();
         int randomSndDir = 0;
 
         if (soundName == "win") {
@@ -334,8 +368,8 @@ public class mainesweeperView extends Application {
             path += "titlescreen/boom.wav";
         }
 
-        sound = new Media(new File(path).toURI().toString());
-        soundPlayer = new MediaPlayer(sound);
+        Media sound = new Media(new File(path).toURI().toString());
+        MediaPlayer soundPlayer = new MediaPlayer(sound);
         soundPlayer.setStartTime(Duration.ZERO);
 
         if (soundName == "titlemusic") {
@@ -343,15 +377,6 @@ public class mainesweeperView extends Application {
             soundPlayer.setAutoPlay(true);
             soundPlayer.setCycleCount(MediaPlayer.INDEFINITE);
         }
-
         soundPlayer.play();
-    }
-
-    public void stopSound() {
-        try {
-            soundPlayer.stop();
-        } catch (Exception noSoundExists) {
-            out.println("Error Stopping Sound: No sound exists yet");
-        }
     }
 }

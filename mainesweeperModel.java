@@ -8,6 +8,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+import java.sql.Array;
 import java.util.*;
 
 public class mainesweeperModel extends Application {
@@ -15,18 +16,18 @@ public class mainesweeperModel extends Application {
     boolean gameOver;
     mainesweeperView view = new mainesweeperView();
 
-    HashMap bombs = new HashMap();
+    ArrayList bombs = new ArrayList();
     int gridSize;
     HashMap revealedTiles = new HashMap();
-    int bombsint;
 
-    HashMap flags = new HashMap();
+    ArrayList flags = new ArrayList();
 
     public static void main(String[] args) {
         launch(args);
     }
 
     public void start(Stage stage) throws Exception {
+
         gridSize = 16;
         view.setGridSize(gridSize);
         view.start(stage);
@@ -37,7 +38,7 @@ public class mainesweeperModel extends Application {
         view.viewGreetScreen();
     }
 
-    public void modelGameOver(String winOrLose) {
+    public void gameOver(String winOrLose) {
         gameActive = false;
         gameOver = true;
         view.viewGameOver(winOrLose);
@@ -65,13 +66,14 @@ public class mainesweeperModel extends Application {
     public void modelGenerateTiles(int exception) {
         revealedTiles.clear();
         flags.clear();
+        bombs.clear();
 
         Random rndBomb = new Random();
         int index = 0;
         while (index != 40) {
             int value = rndBomb.nextInt(255);
-            if (bombs.containsValue(value) == false && value != exception)
-                bombs.put(index, value);
+            if (containsValue(bombs,value) == false && value != exception)
+                bombs.add(value);
             if (bombs.size() == index)
                 index--;
             index++;
@@ -80,30 +82,24 @@ public class mainesweeperModel extends Application {
 
         for (int a = 0; a < view.mineGridGroup.getChildren().size(); a++) {
             int finalA = a;
-            if (bombs.containsValue(a)) {
+            if (containsValue(bombs,a)) {
                 view.revealTile(a, -1);
                 view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {    //Bombs
                     MouseButton button = event.getButton();
                     if (button == MouseButton.PRIMARY)
-                        modelGameOver("LOSE");
-                    else if (button == MouseButton.SECONDARY) {
-                        view.revealTile(finalA, 10);
-
-                        if (addFlag(finalA) == true)
-                            modelGameOver("WIN");
-                    }
+                        gameOver("LOSE");
+                    if (button == MouseButton.SECONDARY)
+                        addFlag(finalA);
+                });
+            } else {
+                view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {
+                    MouseButton button = event.getButton();
+                    if (button == MouseButton.PRIMARY)
+                        revealTiles(finalA);
+                    if (button == MouseButton.SECONDARY)
+                        addFlag(finalA);
                 });
             }
-            view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {
-                MouseButton button = event.getButton();
-                if (button == MouseButton.PRIMARY) {
-                    revealTiles(finalA);
-                } else if (button == MouseButton.SECONDARY) {
-                    view.revealTile(finalA, 10);
-                    if (addFlag(finalA))
-                        modelGameOver("WIN");
-                }
-            });
         }
     }
 
@@ -145,7 +141,7 @@ public class mainesweeperModel extends Application {
 
         if (getAdjBombs(wipeTiles, index) == 0) {
             for (int a = 0; a < wipeTiles.size(); a++) {
-                if (bombs.containsValue(wipeTiles.get(a)) == false && revealedTiles.containsValue(wipeTiles.get(a)) == false) {
+                if (containsValue(bombs,wipeTiles.get(a)) == false && revealedTiles.containsValue(wipeTiles.get(a)) == false) {
                     revealedTiles.put(revealedTiles.size(), wipeTiles.get(a));
                     view.revealTile(index, 0);
 
@@ -166,36 +162,64 @@ public class mainesweeperModel extends Application {
 
         int adjBombInt = 0;
         for (int a = 0; a < adjTiles.size(); a++) {
-            if (bombs.containsValue(adjTiles.get(a)))
+            if (containsValue(bombs,(Integer)adjTiles.get(a)))
                 adjBombInt++;
         }
 
         return adjBombInt;
     }
 
-    public boolean addFlag(int index) {
-        flags.put(flags.size(), index);
+    public void addFlag(int index) {
+        if (containsValue(flags,index) == false) {
+            flags.add(index);
+            view.addFlag(index, flags.size());
 
-        if (flags.size() == bombs.size()) {
-            for (int a = 0; a < flags.size(); a++) {
-                if (bombs.containsValue(flags.get(a)) == false)
-                    return false;
+            view.mineGridGroup.getChildren().get(index).setOnMouseClicked(event -> {
+                MouseButton button = event.getButton();
+                if (button == MouseButton.SECONDARY) {
+                    removeFlag(index);
+                }
+            });
+            if (sortCheck(flags,bombs)==true) {
+                gameOver("WIN");
             }
-            out.println("the prophecy is fulfilled");
-            return true;
         }
-        for (int a = 0; a < flags.size(); a++) {
-            if ((Integer) flags.get(a) == index)
-                flags.remove(a);
-        }
-
-        return false;
     }
-
     public void removeFlag(int index) {
-        for (int a = 0; a < flags.size(); a++) {
-            if ((Integer) flags.get(a) == index)
-                flags.remove(a);
+        if (containsValue(flags,index) == true) {
+            out.println(flags);
+            for (int a = 0; a < flags.size(); a++) {
+                if (flags.get(a).equals(index)) {
+                    flags.remove(a);
+                }
+            }
+            view.removeFlag(index, flags.size());
+
+            view.mineGridGroup.getChildren().get(index).setOnMouseClicked(event -> {
+                MouseButton button = event.getButton();
+                if (button == MouseButton.SECONDARY) {
+                    addFlag(index);
+                }
+                if (button == MouseButton.PRIMARY) {
+                    if (containsValue(bombs,index))
+                        gameOver("LOSE");
+                    else
+                        revealTiles(index);
+                }
+            });
         }
+    }
+    public boolean sortCheck(ArrayList arrayList1, ArrayList arrayList2){
+        Collections.sort(arrayList1);
+        Collections.sort(arrayList2);
+
+        return arrayList1.equals(arrayList2);
+    }
+    public boolean containsValue(ArrayList arrayList, int value){
+        for(int a = 0; a < arrayList.size(); a++){
+            if(arrayList.get(a).equals(value))
+                return true;
+        }
+        return false;
     }
 }
