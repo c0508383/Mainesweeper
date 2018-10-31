@@ -38,10 +38,11 @@ public class mainesweeperModel extends Application {
         view.viewGreetScreen();
     }
 
-    public void gameOver(String winOrLose) {
+    public void gameOver(String winOrLose, int bombClicked) {
         gameActive = false;
         gameOver = true;
-        view.viewGameOver(winOrLose);
+        //view.viewGameOver(winOrLose);
+        view.gameOverStart(winOrLose, bombClicked);
     }
 
     public void modelTitleTransition() {
@@ -83,11 +84,11 @@ public class mainesweeperModel extends Application {
         for (int a = 0; a < view.mineGridGroup.getChildren().size(); a++) {
             int finalA = a;
             if (containsValue(bombs, a)) {
-                view.revealTile(a, -1);
+                //view.revealTile(a, -1);
                 view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {    //Bombs
                     MouseButton button = event.getButton();
                     if (button == MouseButton.PRIMARY)
-                        gameOver("LOSE");
+                        gameOver("LOSE", finalA);
                     if (button == MouseButton.SECONDARY) {
                         addFlag(finalA);
                         view.playSound("guess");
@@ -188,7 +189,7 @@ public class mainesweeperModel extends Application {
                 }
             });
             if (sortCheck(flags, bombs) == true) {
-                gameOver("WIN");
+                gameOver("WIN", index);
             }
         }
     }
@@ -210,7 +211,7 @@ public class mainesweeperModel extends Application {
                 }
                 if (button == MouseButton.PRIMARY) {
                     if (containsValue(bombs, index))
-                        gameOver("LOSE");
+                        gameOver("LOSE", index);
                     else
                         revealTiles(index);
                 }

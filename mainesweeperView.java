@@ -26,6 +26,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Random;
 
 import static java.lang.System.out;
@@ -199,6 +200,24 @@ public class mainesweeperView extends Application {
         });
     }
 
+    public void gameOverStart(String winOrLose, int bombClicked, ArrayList bombArray) {
+        ArrayList bombs = new ArrayList(bombArray);
+
+        Random rnd = new Random();
+        EventHandler<ActionEvent> hissEvent = event -> {
+            revealTile(bombClicked, -1 - rnd.nextInt(3));
+        };
+        Timeline hiss = new Timeline(new KeyFrame(Duration.millis(10), hissEvent));
+        hiss.setCycleCount(1000);
+        hiss.play();
+
+        for(int a = 0; a < )
+
+        hiss.setOnFinished(event -> {
+            viewGameOver(winOrLose);
+        });
+    }
+
     public void viewGameOver(String winOrLose) {
         if (main.getChildren().contains(lose))
             main.getChildren().remove(lose);
@@ -309,6 +328,13 @@ public class mainesweeperView extends Application {
 
         if (number == -1)
             mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\boom0.png").toURI().toString());
+        if (number == -2)
+            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\boom1.png").toURI().toString());
+        if (number == -3)
+            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\boom2.png").toURI().toString());
+        if (number == -4)
+            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\boom3.png").toURI().toString());
+
         if (number == 10)
             mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\thonk\\thonk0.png").toURI().toString());
         if (number == 11)
@@ -350,14 +376,14 @@ public class mainesweeperView extends Application {
         String path = "src/MAINesweeper/snd/";
         int randomSndDir = 0;
 
-        if(soundName=="clickmine"){
-            path+="misc/clickmine.wav";
+        if (soundName == "clickmine") {
+            path += "misc/clickmine.wav";
         }
-        if(soundName=="clickfirstmine"){
-            path+="misc/clickfirstmine.wav";
+        if (soundName == "clickfirstmine") {
+            path += "misc/clickfirstmine.wav";
         }
-        if(soundName=="guess"){
-            path+="misc/guess.wav";
+        if (soundName == "guess") {
+            path += "misc/guess.wav";
         }
         if (soundName == "win") {
             path += "win/win0.wav";
