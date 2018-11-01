@@ -42,7 +42,7 @@ public class mainesweeperModel extends Application {
         gameActive = false;
         gameOver = true;
         //view.viewGameOver(winOrLose);
-        view.gameOverStart(winOrLose, bombClicked);
+        view.gameOverStart(winOrLose, bombClicked, bombs);
     }
 
     public void modelTitleTransition() {

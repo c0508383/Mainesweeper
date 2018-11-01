@@ -201,20 +201,26 @@ public class mainesweeperView extends Application {
     }
 
     public void gameOverStart(String winOrLose, int bombClicked, ArrayList bombArray) {
-        ArrayList bombs = new ArrayList(bombArray);
 
         Random rnd = new Random();
         EventHandler<ActionEvent> hissEvent = event -> {
             revealTile(bombClicked, -1 - rnd.nextInt(3));
         };
         Timeline hiss = new Timeline(new KeyFrame(Duration.millis(10), hissEvent));
-        hiss.setCycleCount(1000);
+        hiss.setCycleCount(100);
         hiss.play();
 
-        for(int a = 0; a < )
+        EventHandler<ActionEvent> hissEventSeveral = event -> {
+            revealTile((Integer) bombArray.get(0), -1 - rnd.nextInt(3));
+        };
+        Timeline hissSeveral = new Timeline(new KeyFrame(Duration.millis(500), hissEventSeveral));
+        hissSeveral.setCycleCount(2);
 
         hiss.setOnFinished(event -> {
-            viewGameOver(winOrLose);
+            hissSeveral.play();
+        });
+        hissSeveral.setOnFinished(event -> {
+            viewGameOver("LOSE");
         });
     }
 
