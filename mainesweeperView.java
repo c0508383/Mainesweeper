@@ -65,6 +65,26 @@ public class mainesweeperView extends Application {
     int diagonal;
     int gridSize;
 
+
+    Image mineImage0 = new Image(new File("src\\MAINesweeper\\img\\mine\\" + 0 + ".png").toURI().toString());
+    Image mineImage1 = new Image(new File("src\\MAINesweeper\\img\\mine\\" + 1 + ".png").toURI().toString());
+    Image mineImage2 = new Image(new File("src\\MAINesweeper\\img\\mine\\" + 2 + ".png").toURI().toString());
+    Image mineImage3 = new Image(new File("src\\MAINesweeper\\img\\mine\\" + 3 + ".png").toURI().toString());
+    Image mineImage4 = new Image(new File("src\\MAINesweeper\\img\\mine\\" + 4 + ".png").toURI().toString());
+    Image mineImage5 = new Image(new File("src\\MAINesweeper\\img\\mine\\" + 5 + ".png").toURI().toString());
+    Image mineImage6 = new Image(new File("src\\MAINesweeper\\img\\mine\\" + 6 + ".png").toURI().toString());
+    Image mineImage7 = new Image(new File("src\\MAINesweeper\\img\\mine\\" + 7 + ".png").toURI().toString());
+    Image mineImage8 = new Image(new File("src\\MAINesweeper\\img\\mine\\" + 8 + ".png").toURI().toString());
+    Image mineImage9 = new Image(new File("src\\MAINesweeper\\img\\mine\\" + 9 + ".png").toURI().toString());
+
+    Image boom0 = new Image(new File("src\\MAINesweeper\\img\\mine\\boom0.png").toURI().toString());
+    Image boom1 = new Image(new File("src\\MAINesweeper\\img\\mine\\boom1.png").toURI().toString());
+    Image boom2 = new Image(new File("src\\MAINesweeper\\img\\mine\\boom2.png").toURI().toString());
+    Image boom3 = new Image(new File("src\\MAINesweeper\\img\\mine\\boom3.png").toURI().toString());
+
+    Image flag = new Image(new File("src\\MAINesweeper\\img\\mine\\thonk\\thonk0.png").toURI().toString());
+    Image mineTile = new Image(new File("src\\MAINesweeper\\img\\mine\\minetile.png").toURI().toString());
+
     public void setGridSize(int size) {
         gridSize = size;
     }
@@ -211,16 +231,18 @@ public class mainesweeperView extends Application {
         hiss.play();
 
         EventHandler<ActionEvent> hissEventSeveral = event -> {
-            revealTile((Integer) bombArray.get(0), -1 - rnd.nextInt(3));
+            for(int a = 0; a < bombArray.size(); a++) {
+                revealTile((Integer) bombArray.get(a), -1 - rnd.nextInt(3));
+            }
         };
-        Timeline hissSeveral = new Timeline(new KeyFrame(Duration.millis(500), hissEventSeveral));
-        hissSeveral.setCycleCount(2);
+        Timeline hissSeveral = new Timeline(new KeyFrame(Duration.millis(10), hissEventSeveral));
+        hissSeveral.setCycleCount(100);
 
         hiss.setOnFinished(event -> {
             hissSeveral.play();
         });
         hissSeveral.setOnFinished(event -> {
-            viewGameOver("LOSE");
+            viewGameOver(winOrLose);
         });
     }
 
@@ -329,24 +351,41 @@ public class mainesweeperView extends Application {
     }
 
     public void revealTile(int index, int number) {
-        Random rnd = new Random();
-        Image mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\" + number + ".png").toURI().toString());
+        ImageView mineImageView = null;
+        if(number == 0)
+            mineImageView = new ImageView(mineImage0);
+        if(number == 1)
+            mineImageView = new ImageView(mineImage1);
+        if(number == 2)
+            mineImageView = new ImageView(mineImage2);
+        if(number == 3)
+            mineImageView = new ImageView(mineImage3);
+        if(number == 4)
+            mineImageView = new ImageView(mineImage4);
+        if(number == 5)
+            mineImageView = new ImageView(mineImage5);
+        if(number == 6)
+            mineImageView = new ImageView(mineImage6);
+        if(number == 7)
+            mineImageView = new ImageView(mineImage7);
+        if(number == 8)
+            mineImageView = new ImageView(mineImage8);
+        if(number == 9)
+            mineImageView = new ImageView(mineImage9);
 
         if (number == -1)
-            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\boom0.png").toURI().toString());
+            mineImageView = new ImageView(boom0);
         if (number == -2)
-            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\boom1.png").toURI().toString());
+            mineImageView = new ImageView(boom1);
         if (number == -3)
-            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\boom2.png").toURI().toString());
+            mineImageView = new ImageView(boom2);
         if (number == -4)
-            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\boom3.png").toURI().toString());
+            mineImageView = new ImageView(boom3);
 
         if (number == 10)
-            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\thonk\\thonk0.png").toURI().toString());
+            mineImageView = new ImageView(flag);
         if (number == 11)
-            mineImage = new Image(new File("src\\MAINesweeper\\img\\mine\\minetile.png").toURI().toString());
-
-        ImageView mineImageView = new ImageView(mineImage);
+            mineImageView = new ImageView(mineTile);
 
         mineImageView.setLayoutX(mineGridGroup.getChildren().get(index).getLayoutX());
         mineImageView.setLayoutY(mineGridGroup.getChildren().get(index).getLayoutY());
