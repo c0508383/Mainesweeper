@@ -1,5 +1,6 @@
 package MAINesweeper;
 
+import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -28,6 +29,7 @@ import javafx.util.Duration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.System.out;
 
@@ -35,8 +37,12 @@ public class mainesweeperView extends Application {
     Pane main;
     StackPane rootPane;
     Scene scene;
+    Random rnd = new Random();
+    boolean canPressKey;
 
-    MediaPlayer titleScreenPlayer;
+    Media titleMusic = new Media(new File("src/MAINesweeper/snd/titlescreen/music/titlemusic0.wav").toURI().toString());
+    MediaPlayer titleScreenPlayer = new MediaPlayer(titleMusic);
+    MediaPlayer soundtrack = new MediaPlayer(titleMusic);
 
     Text disclaimer = new Text(20, 760, "disclaimer: turn your volume\ndown to prevent permanent\near damage (seriously; don't sue me)");
     Text greetMAIN = new Text(100, 250, "MAIN");
@@ -48,20 +54,24 @@ public class mainesweeperView extends Application {
     Group startGreeting = new Group(disclaimer, pressAKey, greetSweeper, greetMAIN);
     Timeline greetTransitionScrollAnim;
 
-    Text time = new Text(100, 125, "TIME: ");
-    Text score = new Text(100, 150, "SCORE: ");
+    int timeInt;
+    Timeline timer = new Timeline();
+    Text timeCounterText = new Text(125, 50, "Time: ");
+    Text timeCounterTime = new Text(190, 50, "0");
+    Group timeDisplay = new Group(timeCounterText, timeCounterTime);
 
     Text loseText = new Text(85, 300, "==G A M E==O V E R==");
-    Group lose = new Group(time, score, loseText);
+    Group lose = new Group(loseText);
 
+    Text winTime = new Text(280, 400, "TIME: ");
     Text winText = new Text(120, 400, "MAINSWEEPED");
-    Group win = new Group(time, score, winText);
+    Group win = new Group(winTime, winText);
 
     Text flagCounter = new Text(400, 60, ": 40");
     ImageView flagIcon = new ImageView();
     Group flagGroup = new Group(flagCounter, flagIcon);
 
-    Group mineGridGroup;
+    Group mineGridGroup = new Group();
     int diagonal;
     int gridSize;
 
@@ -82,6 +92,18 @@ public class mainesweeperView extends Application {
     Image boom2 = new Image(new File("src\\MAINesweeper\\img\\mine\\boom2.png").toURI().toString());
     Image boom3 = new Image(new File("src\\MAINesweeper\\img\\mine\\boom3.png").toURI().toString());
 
+    Image explosion0 = new Image(new File("src\\MAINesweeper\\img\\mine\\explosion\\explosion0.gif").toURI().toString());
+    Image explosion1 = new Image(new File("src\\MAINesweeper\\img\\mine\\explosion\\explosion1.gif").toURI().toString());
+    Image explosion2 = new Image(new File("src\\MAINesweeper\\img\\mine\\explosion\\explosion2.gif").toURI().toString());
+    Image explosion3 = new Image(new File("src\\MAINesweeper\\img\\mine\\explosion\\explosion3.gif").toURI().toString());
+    Image explosion4 = new Image(new File("src\\MAINesweeper\\img\\mine\\explosion\\explosion4.gif").toURI().toString());
+    Image explosion5 = new Image(new File("src\\MAINesweeper\\img\\mine\\explosion\\explosion5.gif").toURI().toString());
+    Image explosion6 = new Image(new File("src\\MAINesweeper\\img\\mine\\explosion\\explosion6.gif").toURI().toString());
+    Group explosions = new Group();
+
+    Media loseLaughSound = new Media(new File("src/MAINesweeper/snd/lose/lose0.wav").toURI().toString());
+    MediaPlayer loseLaughPlayer = new MediaPlayer(loseLaughSound);
+
     Image flag = new Image(new File("src\\MAINesweeper\\img\\mine\\thonk\\thonk0.png").toURI().toString());
     Image mineTile = new Image(new File("src\\MAINesweeper\\img\\mine\\minetile.png").toURI().toString());
 
@@ -94,9 +116,6 @@ public class mainesweeperView extends Application {
     }
 
     public void start(Stage stage) throws Exception {
-        mineGridGroup = new Group();
-        mineGridGroup.setVisible(false);
-
         Image flagImage = new Image(new File("src\\MAINesweeper\\img\\mine\\bluff.png").toURI().toString());
         flagIcon.setImage(flagImage);
         flagCounter.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 40));
@@ -105,6 +124,9 @@ public class mainesweeperView extends Application {
         flagIcon.setScaleY(.15);//.07
         flagIcon.setLayoutX(100);//-100
         flagIcon.setLayoutY(-215);//-440
+
+        timeCounterText.setFont(Font.font("verdana", FontWeight.NORMAL, FontPosture.REGULAR, 20));
+        timeCounterTime.setFont(Font.font("verdana", FontWeight.NORMAL, FontPosture.REGULAR, 20));
 
         main = new Pane();
         rootPane = new StackPane(main);
@@ -129,6 +151,7 @@ public class mainesweeperView extends Application {
         stage.setScene(scene);
 
         stage.show();
+        canPressKey = true;
     }
 
     public void viewGreetScreen() {
@@ -187,6 +210,8 @@ public class mainesweeperView extends Application {
     }
 
     public void viewTitleTransition() {
+        canPressKey = false;
+        titleScreenPlayer.stop();
         playSound("titleboom");
 
         pressAKey.setOpacity(1.0);
@@ -217,58 +242,164 @@ public class mainesweeperView extends Application {
 
         keyPressedAnim.setOnFinished(event -> {
             greetTransitionScrollAnim.play();
+            playSound("soundtrack");
         });
     }
 
-    public void gameOverStart(String winOrLose, int bombClicked, ArrayList bombArray) {
+    public void loseStart(int bombClicked, ArrayList bombArray) {
+        timer.stop();
 
-        Random rnd = new Random();
-        EventHandler<ActionEvent> hissEvent = event -> {
+        FadeTransition shellShockMine = new FadeTransition(new Duration(3000), mineGridGroup);
+        shellShockMine.setFromValue(1);
+        shellShockMine.setToValue(0);
+        FadeTransition shellShockExplosions = new FadeTransition(new Duration(3000), explosions);
+        shellShockExplosions.setFromValue(1);
+        shellShockExplosions.setToValue(0);
+        FadeTransition shellShockFlag = new FadeTransition(new Duration(3000), flagGroup);
+        shellShockFlag.setFromValue(1);
+        shellShockFlag.setToValue(0);
+        FadeTransition shellShockTimer = new FadeTransition(new Duration(3000), timeDisplay);
+        shellShockTimer.setFromValue(1);
+        shellShockTimer.setToValue(0);
+
+        if (rnd.nextInt(9) == 1)
+            playSound("loselaugh");
+        else
+            playSound("explosionstart");
+
+        EventHandler<ActionEvent> startExplosionEvent = event -> {
             revealTile(bombClicked, -1 - rnd.nextInt(3));
         };
-        Timeline hiss = new Timeline(new KeyFrame(Duration.millis(10), hissEvent));
-        hiss.setCycleCount(100);
-        hiss.play();
+        Timeline startExplosion = new Timeline(new KeyFrame(Duration.millis(10), startExplosionEvent));
+        startExplosion.setCycleCount(100);
+        startExplosion.play();
 
-        EventHandler<ActionEvent> hissEventSeveral = event -> {
-            for(int a = 0; a < bombArray.size(); a++) {
+        EventHandler<ActionEvent> chainExplosionEvent = event -> {
+            int randomExplosion = rnd.nextInt(6);
+            ImageView explosion = new ImageView();
+            if (randomExplosion == 0)
+                explosion = new ImageView(explosion0);
+            if (randomExplosion == 1)
+                explosion = new ImageView(explosion1);
+            if (randomExplosion == 2)
+                explosion = new ImageView(explosion2);
+            if (randomExplosion == 3)
+                explosion = new ImageView(explosion3);
+            if (randomExplosion == 4)
+                explosion = new ImageView(explosion4);
+            if (randomExplosion == 5)
+                explosion = new ImageView(explosion5);
+            if (randomExplosion == 6)
+                explosion = new ImageView(explosion6);
+
+            explosion.setLayoutX(0 + rnd.nextInt(600));
+            explosion.setLayoutY(0 + rnd.nextInt(600));
+
+            if (mineGridGroup.getChildren().size() > 0) {
+                mineGridGroup.getChildren().get(rnd.nextInt(255)).setVisible(false);
+                mineGridGroup.getChildren().get(rnd.nextInt(255)).setVisible(false);
+                mineGridGroup.getChildren().get(rnd.nextInt(255)).setVisible(false);
+                mineGridGroup.getChildren().get(rnd.nextInt(255)).setVisible(false);
+                mineGridGroup.getChildren().get(rnd.nextInt(255)).setVisible(false);
+            }
+
+            explosions.getChildren().add(explosion);
+            if (explosions.getChildren().size() == 5)
+                explosions.getChildren().remove(0);
+        };
+        Timeline chainExplosion = new Timeline(new KeyFrame(Duration.millis(50), chainExplosionEvent));
+        chainExplosion.setCycleCount(80);
+
+        AtomicInteger flashTime = new AtomicInteger();
+        EventHandler<ActionEvent> startExplosionEventSeveral = event -> {
+            flashTime.set(flashTime.get() + 1);
+            for (int a = 0; a < bombArray.size(); a++) {
                 revealTile((Integer) bombArray.get(a), -1 - rnd.nextInt(3));
             }
-        };
-        Timeline hissSeveral = new Timeline(new KeyFrame(Duration.millis(10), hissEventSeveral));
-        hissSeveral.setCycleCount(100);
 
-        hiss.setOnFinished(event -> {
-            hissSeveral.play();
+            if (flashTime.get() == 100) {
+                playSound("chainstart");
+                playSound("explosion");
+                main.getChildren().add(explosions);
+                chainExplosion.play();
+
+                shellShockExplosions.play();
+                shellShockMine.play();
+                shellShockFlag.play();
+                shellShockTimer.play();
+            }
+            if (flashTime.get() > 100 && flashTime.get() % 20 == 0) {
+                playSound("explosion");
+            }
+        };
+        Timeline startExplosionSeveral = new Timeline(new KeyFrame(Duration.millis(10), startExplosionEventSeveral));
+        startExplosionSeveral.setCycleCount(500);
+
+        startExplosion.setOnFinished(event -> {
+            playSound("severalstart");
+            startExplosionSeveral.play();
         });
-        hissSeveral.setOnFinished(event -> {
-            viewGameOver(winOrLose);
+        startExplosionSeveral.setOnFinished(event -> {
+            shellShockExplosions.setToValue(1);
+            shellShockExplosions.setByValue(1);
+            shellShockExplosions.play();
+
+            shellShockTimer.setToValue(1);
+            shellShockTimer.setByValue(1);
+            shellShockTimer.play();
+
+            shellShockFlag.setToValue(1);
+            shellShockFlag.setByValue(1);
+            shellShockFlag.play();
+
+            shellShockMine.setToValue(1);
+            shellShockMine.setByValue(1);
+            shellShockMine.play();
+
+            explosions.getChildren().clear();
+            main.getChildren().remove(explosions);
+
+            lose.setVisible(true);
+            lose.setOpacity(0);
+            gameOver("LOSE");
         });
     }
 
-    public void viewGameOver(String winOrLose) {
+    public void gameOver(String winOrLose) {
         if (main.getChildren().contains(lose))
             main.getChildren().remove(lose);
         main.getChildren().add(lose);
 
+        FadeTransition shellShockLose = new FadeTransition(new Duration(1000), lose);
+        shellShockLose.setFromValue(0);
+        shellShockLose.setToValue(1);
+
         loseText.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 50));
-        if (winOrLose == "LOSE")
-            lose.setVisible(true);
+        if (winOrLose == "LOSE") {
+            shellShockLose.play();
+            shellShockLose.setOnFinished(event -> {
+                canPressKey = true;
+            });
+        }
 
         if (main.getChildren().contains(win))
             main.getChildren().remove(win);
         main.getChildren().add(win);
 
         winText.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 75));
+        winTime.setFont(Font.font("verdana", FontWeight.EXTRA_LIGHT, FontPosture.REGULAR, 40));
+        winTime.setText("Time: " + timeInt);
         if (winOrLose == "WIN")
             win.setVisible(true);
 
         mineGridGroup.getChildren().clear();
         mineGridGroup.setVisible(false);
         flagGroup.setVisible(false);
+        timeDisplay.setVisible(false);
     }
 
     public void viewStartGame() {
+        canPressKey = false;
         if (main.getChildren().contains(mineGridGroup))
             main.getChildren().remove(mineGridGroup);
         main.getChildren().add(mineGridGroup);
@@ -277,6 +408,11 @@ public class mainesweeperView extends Application {
             main.getChildren().remove(flagGroup);
         main.getChildren().add(flagGroup);
         flagGroup.setVisible(false);
+
+        if (main.getChildren().contains(timeDisplay))
+            main.getChildren().remove(timeDisplay);
+        main.getChildren().add(timeDisplay);
+        timeDisplay.setVisible(false);
 
         lose.setVisible(false);
         win.setVisible(false);
@@ -321,7 +457,18 @@ public class mainesweeperView extends Application {
         gridGenerateAnim.play();
         gridGenerateAnim.setOnFinished(event -> {
             flagGroup.setVisible(true);
+            timeDisplay.setVisible(true);
         });
+
+        timeInt = 0;
+        EventHandler<ActionEvent> timerEvent = e ->
+        {
+            timeCounterTime.setText(timeInt + "");
+            timeInt++;
+        };
+        timer = new Timeline(new KeyFrame(Duration.millis(1000), timerEvent));
+        timer.setCycleCount(Animation.INDEFINITE);
+        timer.play();
     }
 
     public void viewGenerateTiles() {
@@ -352,25 +499,25 @@ public class mainesweeperView extends Application {
 
     public void revealTile(int index, int number) {
         ImageView mineImageView = null;
-        if(number == 0)
+        if (number == 0)
             mineImageView = new ImageView(mineImage0);
-        if(number == 1)
+        if (number == 1)
             mineImageView = new ImageView(mineImage1);
-        if(number == 2)
+        if (number == 2)
             mineImageView = new ImageView(mineImage2);
-        if(number == 3)
+        if (number == 3)
             mineImageView = new ImageView(mineImage3);
-        if(number == 4)
+        if (number == 4)
             mineImageView = new ImageView(mineImage4);
-        if(number == 5)
+        if (number == 5)
             mineImageView = new ImageView(mineImage5);
-        if(number == 6)
+        if (number == 6)
             mineImageView = new ImageView(mineImage6);
-        if(number == 7)
+        if (number == 7)
             mineImageView = new ImageView(mineImage7);
-        if(number == 8)
+        if (number == 8)
             mineImageView = new ImageView(mineImage8);
-        if(number == 9)
+        if (number == 9)
             mineImageView = new ImageView(mineImage9);
 
         if (number == -1)
@@ -419,8 +566,19 @@ public class mainesweeperView extends Application {
         }
 
         String path = "src/MAINesweeper/snd/";
-        int randomSndDir = 0;
 
+        if (soundName == "explosionstart") {
+            path += "explosion/explosionstart.wav";
+        }
+        if (soundName == "severalstart") {
+            path += "explosion/severalstart.wav";
+        }
+        if (soundName == "chainstart") {
+            path += "explosion/chainstart.wav";
+        }
+        if (soundName == "explosion") {
+            path += "explosion/explosion" + rnd.nextInt(1) + ".wav";
+        }
         if (soundName == "clickmine") {
             path += "misc/clickmine.wav";
         }
@@ -436,22 +594,30 @@ public class mainesweeperView extends Application {
         if (soundName == "generate") {
             path += "generate/generate1.wav";
         }
-        if (soundName == "titlemusic") {
-            path += "titlescreen/music/titlemusic0.wav";
-        }
         if (soundName == "titleboom") {
             path += "titlescreen/boom.wav";
         }
 
-        Media sound = new Media(new File(path).toURI().toString());
-        MediaPlayer soundPlayer = new MediaPlayer(sound);
-        soundPlayer.setStartTime(Duration.ZERO);
+        if (soundName == "loselaugh") {
+            loseLaughPlayer.play();
+        } else if (soundName == "titlemusic") {
+            titleScreenPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            titleScreenPlayer.play();
+        } else if (soundName == "soundtrack") {
+            soundtrack = new MediaPlayer(new Media(new File("src/MAINesweeper/snd/soundtrack/track" + rnd.nextInt(24) + ".mp3").toURI().toString()));
+            soundtrack.setOnEndOfMedia(new Runnable() {
+                @Override
+                public void run() {
+                    playSound("soundtrack");
+                }
+            });
 
-        if (soundName == "titlemusic") {
-            soundPlayer.setStopTime(sound.getDuration());
-            soundPlayer.setAutoPlay(true);
-            soundPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            soundtrack.play();
+        } else {
+            Media sound = new Media(new File(path).toURI().toString());
+            MediaPlayer soundPlayer = new MediaPlayer(sound);
+            soundPlayer.setStartTime(Duration.ZERO);
+            soundPlayer.play();
         }
-        soundPlayer.play();
     }
 }

@@ -41,8 +41,16 @@ public class mainesweeperModel extends Application {
     public void gameOver(String winOrLose, int bombClicked) {
         gameActive = false;
         gameOver = true;
-        //view.viewGameOver(winOrLose);
-        view.gameOverStart(winOrLose, bombClicked, bombs);
+        if (winOrLose == "LOSE") {
+            for(int a = 0; a < view.mineGridGroup.getChildren().size(); a++) {
+                view.mineGridGroup.getChildren().get(a).setOnMouseClicked(event -> {
+                });
+            }
+
+            view.loseStart(bombClicked, bombs);
+        }
+        else
+            view.gameOver(winOrLose);
     }
 
     public void modelTitleTransition() {

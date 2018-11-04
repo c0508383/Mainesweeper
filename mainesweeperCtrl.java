@@ -17,10 +17,10 @@ public class mainesweeperCtrl extends Application {
         justOpened = true;
 
         stage.addEventHandler(KeyEvent.KEY_RELEASED, (key) -> {
-            if(model.gameActive != true && justOpened == false){
+            if(model.gameActive != true && justOpened == false && model.view.canPressKey==true){
                 model.modelStartGame();
             }
-            if(model.gameActive != true && justOpened == true && model.view.greenDarkenCounter==0){
+            if(model.gameActive != true && justOpened == true && model.view.canPressKey==true){
                 justOpened = false;
                 model.modelTitleTransition();
             }
